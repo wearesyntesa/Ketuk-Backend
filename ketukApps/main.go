@@ -11,8 +11,8 @@ import (
 	"ketukApps/internal/database"
 	"ketukApps/internal/handlers"
 	"ketukApps/internal/middleware"
-	"ketukApps/internal/services"
 	"ketukApps/internal/queue"
+	"ketukApps/internal/services"
 )
 
 func main() {
@@ -26,13 +26,12 @@ func main() {
 	defer database.Close()
 
 	db := database.GetDB()
-	
-	// Initialize RabbitMQ 
-	if err := queue.InitRabbitMQ(cfg); err != nil {
+
+	// Initialize RabbitMQ
+	if err := queue.InitSchedule(cfg); err != nil {
 		log.Fatalf("Failed to initialize RabbitMQ: %v", err)
 	}
 	defer queue.CloseRabbitMQ()
-	
 
 	// Initialize services
 	userService := services.NewUserService(db)
@@ -77,23 +76,23 @@ func setupRouter(userHandler *handlers.UserHandler, ticketHandler *handlers.Tick
 		// Users endpoints
 		users := api.Group("/users")
 		{
-			users.GET("", userHandler.GetAllUsers)
-			users.GET("/:id", userHandler.GetUserByID)
-			users.POST("", userHandler.CreateUser)
-			users.PUT("/:id", userHandler.UpdateUser)
-			users.DELETE("/:id", userHandler.DeleteUser)
+			users.GET("/v1", userHandler.GetAllUsers)
+			users.GET("/v1/:id", userHandler.GetUserByID)
+			users.POST("v1", userHandler.CreateUser)
+			users.PUT("/v1/:id", userHandler.UpdateUser)
+			users.DELETE("/v1/:id", userHandler.DeleteUser)
 		}
 
 		tickets := api.Group("/tickets")
 		{
 			// Ticket endpoints would go here
-			tickets.GET("", ticketHandler.GetAllTickets)
-			tickets.GET("/:id", ticketHandler.GetTicketByID)
-			tickets.POST("", ticketHandler.CreateTicket)
-			tickets.PUT("/:id", ticketHandler.UpdateTicket)
-			tickets.DELETE("/:id", ticketHandler.DeleteTicket)
-			tickets.PATCH("/:id/status", ticketHandler.UpdateTicketStatus)
-			tickets.POST("/bulk-status", ticketHandler.BulkUpdateStatus)
+			tickets.GET("/v1", ticketHandler.GetAllTickets)
+			tickets.GET("/v1/:id", ticketHandler.GetTicketByID)
+			tickets.POST("/v1", ticketHandler.CreateTicket)
+			tickets.PUT("/v1/:id", ticketHandler.UpdateTicket)
+			tickets.DELETE("/v1/:id", ticketHandler.DeleteTicket)
+			tickets.PATCH("/v1/:id/status", ticketHandler.UpdateTicketStatus)
+			tickets.POST("/v1/bulk-status", ticketHandler.BulkUpdateStatus)
 		}
 	}
 
