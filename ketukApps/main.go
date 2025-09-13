@@ -12,6 +12,7 @@ import (
 	"ketukApps/internal/handlers"
 	"ketukApps/internal/middleware"
 	"ketukApps/internal/services"
+	"ketukApps/internal/queue"
 )
 
 func main() {
@@ -25,6 +26,13 @@ func main() {
 	defer database.Close()
 
 	db := database.GetDB()
+	
+	// Initialize RabbitMQ 
+	if err := queue.InitRabbitMQ(cfg); err != nil {
+		log.Fatalf("Failed to initialize RabbitMQ: %v", err)
+	}
+	defer queue.CloseRabbitMQ()
+	
 
 	// Initialize services
 	userService := services.NewUserService(db)

@@ -12,6 +12,7 @@ type Config struct {
 	Host     string
 	LogLevel string
 	Database DatabaseConfig
+	Queue    QueueConfig
 }
 
 type DatabaseConfig struct {
@@ -21,6 +22,14 @@ type DatabaseConfig struct {
 	Password string
 	DBName   string
 	SSLMode  string
+}
+
+type QueueConfig struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	Name     string
 }
 
 func Load() *Config {
@@ -40,6 +49,13 @@ func Load() *Config {
 			Password: getEnv("DB_PASSWORD", "password"),
 			DBName:   getEnv("DB_NAME", "mydb"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
+		},
+		Queue: QueueConfig{
+			Host:     getEnv("QUEUE_HOST", "localhost"),
+			Port:     getEnv("QUEUE_PORT", "5672"),
+			User:     getEnv("QUEUE_USER", "user"),
+			Password: getEnv("QUEUE_PASSWORD", "password"),
+			Name:     getEnv("QUEUE_NAME", "schedule"),
 		},
 	}
 }
