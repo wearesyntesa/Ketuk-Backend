@@ -28,10 +28,10 @@ func main() {
 	db := database.GetDB()
 
 	// Initialize RabbitMQ
-	if err := queue.InitSchedule(cfg); err != nil {
+	if err := queue.NewRabbitMQConnection(cfg); err != nil {
 		log.Fatalf("Failed to initialize RabbitMQ: %v", err)
 	}
-	defer queue.CloseRabbitMQ()
+
 
 	// Initialize services
 	userService := services.NewUserService(db)
