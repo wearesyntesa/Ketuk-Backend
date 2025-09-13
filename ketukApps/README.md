@@ -81,53 +81,6 @@ go build -o ketukApps
 
 The server will start on `http://localhost:8080` (or configured PORT).
 
-## 🧪 Testing the API
-
-### Using the Test Script
-```bash
-# Make sure server is running on port 8082
-PORT=8082 go run main.go &
-
-# Run the test script
-./test_api.sh
-```
-
-### Manual Testing with curl
-
-1. **Health Check:**
-```bash
-curl http://localhost:8080/health
-```
-
-2. **Create User:**
-```bash
-curl -X POST http://localhost:8080/api/users \
-  -H "Content-Type: application/json" \
-  -d '{"name":"John Doe","email":"john@example.com"}'
-```
-
-3. **Get All Users:**
-```bash
-curl http://localhost:8080/api/users
-```
-
-4. **Get User by ID:**
-```bash
-curl http://localhost:8080/api/users/1
-```
-
-5. **Update User:**
-```bash
-curl -X PUT http://localhost:8080/api/users/1 \
-  -H "Content-Type: application/json" \
-  -d '{"name":"John Updated"}'
-```
-
-6. **Delete User:**
-```bash
-curl -X DELETE http://localhost:8080/api/users/1
-```
-
 ## 📁 Project Structure Explained
 
 ### `main.go`
