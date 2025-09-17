@@ -31,7 +31,14 @@ func main() {
 	if err := queue.NewRabbitMQConnection(cfg); err != nil {
 		log.Fatalf("Failed to initialize RabbitMQ: %v", err)
 	}
+	defer queue.CloseRabbitMQ()
 
+	// Start the worker
+	go func() {
+		if err := queue.SchduleWorker("schedule"); err != nil {
+			log.Fatalf("Failed to start schedule worker: %v", err)
+		}
+	}()
 
 	// Initialize services
 	userService := services.NewUserService(db)
