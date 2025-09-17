@@ -2,6 +2,7 @@ package queue
 
 import (
 	"fmt"
+	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -10,11 +11,12 @@ func SchduleWorker(name string) error {
 	for {
 		msgs, err := ConsumerSchedule(name)
 		if err != nil {
-			return fmt.Errorf("failed to start consumer: %w", err)
+			log.Printf("Failed to start consumer: %s", err)
+			return err
 		}
 
 		for d := range msgs {
-			fmt.Printf("Received a message: %s\n", d.Body)
+			log.Printf("Received a message: %s", d.Body)
 			// Process the message here
 			// Acknowledge the message if not using auto-ack
 			// d.Ack(false)
@@ -28,7 +30,7 @@ func SchduleWorker(name string) error {
 func ConsumerSchedule(name string) (<-chan amqp.Delivery, error) {
 	q, err := RabbitMQClient.Channel.QueueDeclare(
 		name,
-		true,       // durable
+		false,       // durable
 		false,      // delete when unused
 		false,      // exclusive
 		false,      // no-wait
@@ -41,7 +43,7 @@ func ConsumerSchedule(name string) (<-chan amqp.Delivery, error) {
 	msgs, err := RabbitMQClient.Channel.Consume(
 		q.Name, // queue
 		"",     // consumer
-		true,   // auto-ack
+		false,   // auto-ack
 		false,  // exclusive
 		false,  // no-local
 		false,  // no-wait
