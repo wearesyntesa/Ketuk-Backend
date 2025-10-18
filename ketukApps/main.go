@@ -33,16 +33,17 @@ func main() {
 	}
 	defer queue.CloseRabbitMQ()
 
-	// Start the worker
-	go func() {
-		if err := queue.SchduleWorker("schedule"); err != nil {
-			log.Fatalf("Failed to start schedule worker: %v", err)
-		}
-	}()
-
 	// Initialize services
 	userService := services.NewUserService(db)
 	ticketService := services.NewTicketService(db)
+	scheduleService := services.NewScheduleService(db)
+
+	// Start the worker with ticket service and schedule service
+	go func() {
+		if err := queue.SchduleWorker("schedule", ticketService, scheduleService); err != nil {
+			log.Fatalf("Failed to start schedule worker: %v", err)
+		}
+	}()
 
 	// Initialize handlers
 	userHandler := handlers.NewUserHandler(userService)

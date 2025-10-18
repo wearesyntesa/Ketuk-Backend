@@ -35,18 +35,39 @@ ketukApps/
 
 ## 📋 API Endpoints
 
-### Health Check
+### Complete API Documentation
+
+For detailed API documentation with examples, request/response formats, and all available endpoints, see **[API.md](./API.md)**.
+
+### Quick Reference
+
+#### Health Check
 - `GET /health` - Check API health status
 
-### Users Management
-- `GET /api/users` - Get all users
-- `GET /api/users/:id` - Get user by ID
-- `POST /api/users` - Create new user
-- `PUT /api/users/:id` - Update existing user
-- `DELETE /api/users/:id` - Delete user
+#### Users Management
+- `GET /api/users/v1` - Get all users
+- `GET /api/users/v1/:id` - Get user by ID
+- `POST /api/users/v1` - Create new user
+- `PUT /api/users/v1/:id` - Update existing user
+- `DELETE /api/users/v1/:id` - Delete user
 
-### Documentation
-- `GET /api/docs` - View API documentation
+#### Tickets Management
+- `GET /api/tickets/v1` - Get all tickets
+- `GET /api/tickets/v1/:id` - Get ticket by ID
+- `GET /api/tickets/user/:user_id` - Get tickets by user
+- `GET /api/tickets/status/:status` - Get tickets by status
+- `GET /api/tickets/category/:category` - Get tickets by category
+- `GET /api/tickets/pending` - Get pending tickets
+- `GET /api/tickets/search?q=query` - Search tickets
+- `POST /api/tickets/v1` - Create new ticket
+- `PUT /api/tickets/v1/:id` - Update ticket
+- `PATCH /api/tickets/v1/:id/status` - Update ticket status
+- `POST /api/tickets/v1/bulk-status` - Bulk update status
+- `DELETE /api/tickets/v1/:id` - Delete ticket
+- `GET /api/tickets/statistics` - Get ticket statistics
+
+#### Documentation
+- `GET /api/docs` - View API documentation (HTML)
 
 ## 🔧 Configuration
 
@@ -138,26 +159,100 @@ The server will start on `http://localhost:8080` (or configured PORT).
 }
 ```
 
+## �️ Database
+
+The application uses PostgreSQL with GORM as the ORM. Database migrations are managed using golang-migrate.
+
+### Database Schema
+
+#### Users Table
+- User authentication via Google OAuth2
+- Roles: `user`, `admin`
+- Unique constraints on email and google_sub
+
+#### Tickets Table
+- Booking requests for rooms and equipment
+- Categories: `Kelas`, `Praktikum`, `Skripsi`, `Lainnya`
+- Status: `pending`, `accepted`, `rejected`
+- Includes contact information and scheduling details
+
+#### Schedule Tables
+- `schedule_ticket` - Schedules created from accepted tickets
+- `schedule_reguler` - Regular recurring schedules
+- `unblocking` - Semester unblocking periods
+
+#### Items Tables
+- `items_category` - Equipment/room categories
+- `items` - Individual equipment/room items
+
+See [sample_data.sql](../sample_data.sql) for example data.
+
+## 🔧 Message Queue
+
+The application uses RabbitMQ for asynchronous processing:
+- Schedule worker processes approved tickets
+- Automatically creates schedule entries
+- Handles bulk operations efficiently
+
 ## 🚀 Future Extensions
 
-This is a foundational API server that can be extended with:
+Potential improvements and features:
 
-- **Database Integration** (PostgreSQL, MySQL, MongoDB)
-- **Authentication & Authorization** (JWT, OAuth)
-- **Caching** (Redis)
-- **Validation** (Enhanced input validation)
-- **Swagger Documentation** (API specs)
+- **Enhanced Authentication** (JWT tokens, refresh tokens)
+- **Caching** (Redis for frequently accessed data)
+- **Advanced Search** (Full-text search, filters)
+- **Swagger Documentation** (Interactive API specs)
 - **Testing** (Unit tests, integration tests)
-- **Docker** (Containerization)
-- **Monitoring** (Metrics, logging)
+- **Monitoring** (Prometheus, Grafana)
 - **Rate Limiting** (API throttling)
-- **Message Queues** (RabbitMQ, Kafka)
+- **WebSocket Support** (Real-time notifications)
+- **Email Notifications** (Booking confirmations)
+- **Calendar Integration** (Export to Google Calendar)
 
 ## 📝 Notes
 
-- This implementation uses in-memory storage for simplicity
+- Database: PostgreSQL with GORM ORM
 - User IDs are auto-incremented integers
-- Email uniqueness is enforced
+- Email and google_sub uniqueness is enforced
 - All endpoints return JSON responses
 - CORS is enabled for all origins (configure for production)
 - The server uses Gin's release mode (change to debug for development)
+- RabbitMQ is used for asynchronous task processing
+
+## 🔍 Example Curl Commands
+
+```bash
+# Get all users
+curl http://localhost:8080/api/users/v1
+
+# Create a ticket
+curl -X POST http://localhost:8080/api/tickets/v1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": 1,
+    "request_data": {
+      "name": "Peminjaman Lab",
+      "desc": "Lab untuk praktikum",
+      "category": "Praktikum",
+      "requestDate": "2025-10-20T08:00:00+07:00",
+      "email": "user@example.com",
+      "phone": "081234567890",
+      "pic": "John Doe"
+    }
+  }'
+
+# Update ticket status
+curl -X PATCH http://localhost:8080/api/tickets/v1/1/status \
+  -H "Content-Type: application/json" \
+  -d '{"status": "accepted"}'
+
+# Search tickets
+curl "http://localhost:8080/api/tickets/search?q=lab"
+```
+
+## 📚 Additional Resources
+
+- **[API Documentation](./API.md)** - Complete API reference
+- **[Sample Data](../sample_data.sql)** - Database sample data
+- **[Migrations](../migrations/)** - Database migration files
+- **[Makefile Reference](../README.md)** - Development commands

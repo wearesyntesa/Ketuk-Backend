@@ -148,33 +148,6 @@ func (h *TicketHandler) GetTicketsByStatus(c *gin.Context) {
 	})
 }
 
-// @Summary Get tickets by category
-// @Description Get all tickets with a specific category
-// @Tags tickets
-// @Produce json
-// @Param category path string true "Ticket Category" Enums(Lainnya, Kelas, Praktikum, Skripsi)
-// @Success 200 {object} models.APIResponse
-// @Router /api/tickets/category/{category} [get]
-func (h *TicketHandler) GetTicketsByCategory(c *gin.Context) {
-	categoryParam := c.Param("category")
-	category := models.Category(categoryParam)
-	tickets, err := h.ticketService.GetByCategory(category)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.APIResponse{
-			Success: false,
-			Message: "Failed to retrieve tickets",
-			Error:   err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, models.APIResponse{
-		Success: true,
-		Message: "Tickets retrieved successfully",
-		Data:    tickets,
-	})
-}
-
 // @Summary Get pending tickets
 // @Description Get all pending tickets
 // @Tags tickets
@@ -239,12 +212,12 @@ func (h *TicketHandler) SearchTickets(c *gin.Context) {
 // @Tags tickets
 // @Accept json
 // @Produce json
-// @Param ticket body CreateTicketRequest true "Ticket data"
+// @Param ticket body models.CreateTicketRequest true "Ticket data"
 // @Success 201 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
 // @Router /api/tickets [post]
 func (h *TicketHandler) CreateTicket(c *gin.Context) {
-	var req CreateTicketRequest
+	var req models.CreateTicketRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
@@ -255,8 +228,7 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 		return
 	}
 
-	userID := uint(req.UserID)
-	ticket, err := h.ticketService.CreateWithRequestData(userID, req.RequestData)
+	ticket, err := h.ticketService.CreateFromRequest(req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -279,7 +251,7 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Ticket ID"
-// @Param ticket body models.RequestData true "Updated ticket data"
+// @Param ticket body models.UpdateTicketRequest true "Updated ticket data"
 // @Success 200 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
@@ -297,7 +269,7 @@ func (h *TicketHandler) UpdateTicket(c *gin.Context) {
 	}
 
 	id := uint(idInt)
-	var req models.RequestData
+	var req models.UpdateTicketRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -307,7 +279,7 @@ func (h *TicketHandler) UpdateTicket(c *gin.Context) {
 		return
 	}
 
-	ticket, err := h.ticketService.UpdateWithRequestData(id, req)
+	ticket, err := h.ticketService.UpdateFromRequest(id, req)
 	if err != nil {
 		status := http.StatusBadRequest
 		if err.Error() == "ticket not found" {
@@ -590,11 +562,6 @@ func (h *TicketHandler) GetStatistics(c *gin.Context) {
 }
 
 // Request structs for the handlers
-type CreateTicketRequest struct {
-	UserID      int                `json:"user_id" binding:"required"`
-	RequestData models.RequestData `json:"request_data" binding:"required"`
-}
-
 type UpdateStatusRequest struct {
 	Status string `json:"status" binding:"required"`
 }

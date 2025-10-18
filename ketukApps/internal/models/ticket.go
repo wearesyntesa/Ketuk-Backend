@@ -1,37 +1,51 @@
 package models
 
-import (
-	"time"
-)
+import "time"
 
+// Ticket represents the tickets table with all fields flattened
 type Ticket struct {
-	ID          uint       `json:"id" gorm:"primaryKey"`
-	UserID      uint       `json:"user_id" gorm:"not null"`
-	User        User       `json:"user,omitempty" gorm:"foreignKey:UserID"`
-	Title       string     `json:"title" gorm:"size:255;not null"`
-	Description string     `json:"description,omitempty"`
-	Status      string     `json:"status" gorm:"type:ticket_status;default:pending"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
-	ApprovedAt  *time.Time `json:"approved_at,omitempty"`
+	ID          uint       `json:"id" gorm:"primaryKey;column:id"`
+	UserID      uint       `json:"userId" gorm:"column:user_id;not null"`
+	User        User       `json:"user" gorm:"foreignKey:UserID;references:ID"`
+	Title       string     `json:"title" gorm:"column:title;size:100;not null"`
+	Description string     `json:"description" gorm:"column:description;type:text"`
+	Status      string     `json:"status" gorm:"column:status;type:ticket_status;default:pending"`
+	IDSchedule  *int       `json:"idSchedule,omitempty" gorm:"column:id_schedule"`
+	CreatedAt   time.Time  `json:"createdAt" gorm:"column:created_at;autoCreateTime"`
+	UpdatedAt   time.Time  `json:"updatedAt" gorm:"column:updated_at;autoUpdateTime"`
+	ApprovedAt  *time.Time `json:"approvedAt,omitempty" gorm:"column:approved_at"`
 }
 
+// Category defines the type of request
 type Category string
 
 const (
-	CategoryLainnya  Category = "Lainnya"
-	CategoryClass    Category = "Kelas"
-	CategoryPractice Category = "Praktikum"
-	CategoryThesis   Category = "Skripsi"
+	Kelas     Category = "Kelas"
+	Lainnya   Category = "Lainnya"
+	Praktikum Category = "Praktikum"
+	Skripsi   Category = "Skripsi"
 )
 
-// For backward compatibility with existing handlers
-type RequestData struct {
-	Title       string   `json:"title" binding:"required"`
-	Description string   `json:"description,omitempty"`
-	Category    Category `json:"category,omitempty"`
-	CreatedAt   string   `json:"created_at,omitempty"`
-	ApprovedAt  string   `json:"approved_at,omitempty"`
+// TicketStatus defines the status of a ticket
+type TicketStatus string
+
+const (
+	StatusPending  TicketStatus = "pending"
+	StatusAccepted TicketStatus = "accepted"
+	StatusRejected TicketStatus = "rejected"
+)
+
+// CreateTicketRequest is the request body for creating a new ticket
+type CreateTicketRequest struct {
+	UserID      uint   `json:"userId" binding:"required"`
+	Title       string `json:"title" binding:"required"`
+	Description string `json:"description" binding:"required"`
+}
+
+// UpdateTicketRequest is the request body for updating a ticket
+type UpdateTicketRequest struct {
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 type TicketResponse struct {

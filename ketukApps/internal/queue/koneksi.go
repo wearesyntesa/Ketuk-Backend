@@ -1,10 +1,11 @@
 package queue
 
 import (
-	amqp "github.com/rabbitmq/amqp091-go"
 	"ketukApps/config"
 	"log"
 	"net/url"
+
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 var RabbitMQClient *RabbitMQ
@@ -35,5 +36,6 @@ func NewRabbitMQConnection(cfg *config.Config) (err error) {
 		Conn:    conn,
 		Channel: ch,
 	}
+	log.Println("Connected to RabbitMQ")
 	return nil
 }

@@ -57,20 +57,13 @@ func (s *TicketService) GetByStatus(status string) ([]models.Ticket, error) {
 	return tickets, result.Error
 }
 
-// GetByCategory returns all tickets with a specific category
-func (s *TicketService) GetByCategory(category models.Category) ([]models.Ticket, error) {
-	// Since category is no longer directly in the ticket model, we'll search in description
-	// This is a simplified implementation - in a real app you might want a separate category field
-	var tickets []models.Ticket
-	searchTerm := fmt.Sprintf("%%%s%%", string(category))
-	result := s.db.Preload("User").Where("description ILIKE ?", searchTerm).Find(&tickets)
-	return tickets, result.Error
-}
-
-// Create creates a new ticket - updated signature to match new model
+// Create creates a new ticket using the new model structure
 func (s *TicketService) Create(userID uint, title, description string) (*models.Ticket, error) {
 	if title == "" {
 		return nil, errors.New("title is required")
+	}
+	if description == "" {
+		return nil, errors.New("description is required")
 	}
 
 	ticket := models.Ticket{
@@ -88,6 +81,38 @@ func (s *TicketService) Create(userID uint, title, description string) (*models.
 	// Reload with user data
 	s.db.Preload("User").First(&ticket, ticket.ID)
 	return &ticket, nil
+}
+
+// CreateFromRequest creates a new ticket from CreateTicketRequest
+func (s *TicketService) CreateFromRequest(req models.CreateTicketRequest) (*models.Ticket, error) {
+	return s.Create(req.UserID, req.Title, req.Description)
+}
+
+// CreateFromModel creates a new ticket from a models.Ticket (used for queue processing)
+func (s *TicketService) CreateFromModel(ticket *models.Ticket) (*models.Ticket, error) {
+	if ticket.Title == "" {
+		return nil, errors.New("title is required")
+	}
+	if ticket.Description == "" {
+		return nil, errors.New("description is required")
+	}
+
+	// Reset ID to 0 so PostgreSQL can auto-generate it
+	ticket.ID = 0
+
+	// Set default status if not provided
+	if ticket.Status == "" {
+		ticket.Status = "pending"
+	}
+
+	result := s.db.Create(ticket)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	// Reload with user data
+	s.db.Preload("User").First(ticket, ticket.ID)
+	return ticket, nil
 }
 
 // UpdateStatus updates the status of a ticket
@@ -119,10 +144,10 @@ func (s *TicketService) UpdateStatus(id uint, status string) (*models.Ticket, er
 		"status": status,
 	}
 
-	// Set approved timestamp if status is accepted
+	// Set approved_at time if status is accepted
 	if status == "accepted" {
 		now := time.Now()
-		updates["approved_at"] = &now
+		updates["approved_at"] = now
 	}
 
 	result := s.db.Model(&ticket).Updates(updates)
@@ -163,6 +188,11 @@ func (s *TicketService) Update(id uint, title, description string) (*models.Tick
 	// Reload with updated data
 	s.db.Preload("User").First(&ticket, id)
 	return &ticket, nil
+}
+
+// UpdateFromRequest updates ticket from UpdateTicketRequest
+func (s *TicketService) UpdateFromRequest(id uint, req models.UpdateTicketRequest) (*models.Ticket, error) {
+	return s.Update(id, req.Title, req.Description)
 }
 
 // Delete removes a ticket
@@ -241,16 +271,4 @@ func (s *TicketService) BulkUpdateStatus(ids []uint, status string) ([]models.Ti
 	}
 
 	return updatedTickets, nil
-}
-
-// Legacy compatibility methods to support the old RequestData interface
-
-// CreateWithRequestData creates a ticket using the old RequestData structure for backward compatibility
-func (s *TicketService) CreateWithRequestData(userID uint, requestData models.RequestData) (*models.Ticket, error) {
-	return s.Create(userID, requestData.Title, requestData.Description)
-}
-
-// UpdateWithRequestData updates a ticket using the old RequestData structure for backward compatibility
-func (s *TicketService) UpdateWithRequestData(id uint, requestData models.RequestData) (*models.Ticket, error) {
-	return s.Update(id, requestData.Title, requestData.Description)
 }
