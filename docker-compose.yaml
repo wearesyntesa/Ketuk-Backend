@@ -33,6 +33,10 @@ services:
       PGPASSWORD: password
     volumes:
       - ./migrations/000001_init.up.sql:/migrations/000001_init.up.sql
+      - ./migrations/000002_update_tickets_schema.up.sql:/migrations/000002_update_tickets_schema.up.sql
+      - ./migrations/000003_create_items_tables.up.sql:/migrations/000003_create_items_tables.up.sql
+      - ./migrations/000004_create_schedule_tables.up.sql:/migrations/000004_create_schedule_tables.up.sql
+      - ./migrations/000005_add_schedule_id_to_tickets.up.sql:/migrations/000005_add_schedule_id_to_tickets.up.sql
       - ./migrate.sh:/migrate.sh
     command: ["/migrate.sh"]
     restart: "no"

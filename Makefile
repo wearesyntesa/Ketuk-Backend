@@ -66,7 +66,7 @@ db-sample-show: ## Show sample data in a formatted way
 	@echo "=== USERS ==="
 	sudo docker exec labs-postgres-1 psql -U user -d mydb -c "SELECT id, email, full_name, role FROM users ORDER BY id;"
 	@echo "\n=== TICKETS ==="
-	sudo docker exec labs-postgres-1 psql -U user -d mydb -c "SELECT t.id, u.full_name as user, t.title, t.status, t.approved_at FROM tickets t JOIN users u ON t.user_id = u.id ORDER BY t.id;"
+	sudo docker exec labs-postgres-1 psql -U user -d mydb -c "SELECT * FROM tickets t JOIN users u ON t.user_id = u.id ORDER BY t.id;"
 
 # Cleanup Commands
 clean: ## Remove containers, networks, and volumes
