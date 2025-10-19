@@ -54,6 +54,7 @@ func main() {
 	userService := services.NewUserService(db)
 	ticketService := services.NewTicketService(db)
 	scheduleService := services.NewScheduleService(db)
+	itemsService := services.NewItemService(db)
 
 	// Start the worker with ticket service and schedule service
 	go func() {
@@ -65,9 +66,10 @@ func main() {
 	// Initialize handlers
 	userHandler := handlers.NewUserHandler(userService)
 	tickets := handlers.NewTicketHandler(ticketService)
+	items := handlers.NewItemHandler(itemsService)
 
 	// Setup Gin router
-	router := setupRouter(userHandler, tickets)
+	router := setupRouter(userHandler, tickets, items)
 
 	// Start server
 	address := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
@@ -79,7 +81,7 @@ func main() {
 	}
 }
 
-func setupRouter(userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler) *gin.Engine {
+func setupRouter(userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler) *gin.Engine {
 	// Set Gin mode based on environment
 	gin.SetMode(gin.ReleaseMode) // Change to gin.DebugMode for development
 
@@ -121,6 +123,26 @@ func setupRouter(userHandler *handlers.UserHandler, ticketHandler *handlers.Tick
 			tickets.DELETE("/v1/:id", ticketHandler.DeleteTicket)
 			tickets.PATCH("/v1/:id/status", ticketHandler.UpdateTicketStatus)
 			tickets.POST("/v1/bulk-status", ticketHandler.BulkUpdateStatus)
+		}
+
+		items := api.Group("/items")
+		{
+			// Item endpoints would go here
+			items.GET("/v1", itemHandler.GetAllItems)
+			items.GET("/v1/:id", itemHandler.GetItemByID)
+			items.POST("/v1", itemHandler.CreateItem)
+			items.PUT("/v1/:id", itemHandler.UpdateItem)
+			items.DELETE("/v1/:id", itemHandler.DeleteItem)
+		}
+
+		ItemsCategory := api.Group("/item-categories")
+		{
+			// Item Category endpoints would go here
+			ItemsCategory.GET("/v1", itemHandler.GetAllItemCategories)
+			ItemsCategory.GET("/v1/:id", itemHandler.GetItemCategoryByID)
+			ItemsCategory.POST("/v1", itemHandler.CreateItemCategory)
+			ItemsCategory.PUT("/v1/:id", itemHandler.UpdateItemCategory)
+			ItemsCategory.DELETE("/v1/:id", itemHandler.DeleteItemCategory)
 		}
 	}
 
