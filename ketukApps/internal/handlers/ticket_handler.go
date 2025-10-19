@@ -25,7 +25,7 @@ func NewTicketHandler(ticketService *services.TicketService) *TicketHandler {
 // @Tags tickets
 // @Produce json
 // @Success 200 {object} models.APIResponse
-// @Router /api/tickets [get]
+// @Router /api/tickets/v1 [get]
 func (h *TicketHandler) GetAllTickets(c *gin.Context) {
 	tickets, err := h.ticketService.GetAll()
 	if err != nil {
@@ -52,7 +52,7 @@ func (h *TicketHandler) GetAllTickets(c *gin.Context) {
 // @Success 200 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
-// @Router /api/tickets/{id} [get]
+// @Router /api/tickets/v1/{id} [get]
 func (h *TicketHandler) GetTicketByID(c *gin.Context) {
 	idParam := c.Param("id")
 	idInt, err := strconv.Atoi(idParam)
@@ -91,7 +91,8 @@ func (h *TicketHandler) GetTicketByID(c *gin.Context) {
 // @Success 200 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
-// @Router /api/tickets/user/{user_id} [get]
+// NOTE: This endpoint is not registered in the router - comment out to hide from Swagger
+// //@Router /api/tickets/v1/user/{user_id} [get]
 func (h *TicketHandler) GetTicketsByUserID(c *gin.Context) {
 	userIDParam := c.Param("user_id")
 	userIDInt, err := strconv.Atoi(userIDParam)
@@ -128,7 +129,8 @@ func (h *TicketHandler) GetTicketsByUserID(c *gin.Context) {
 // @Produce json
 // @Param status path string true "Ticket Status" Enums(pending, in_progress, approved, rejected, completed)
 // @Success 200 {object} models.APIResponse
-// @Router /api/tickets/status/{status} [get]
+// NOTE: This endpoint is not registered in the router - comment out to hide from Swagger
+// //@Router /api/tickets/v1/status/{status} [get]
 func (h *TicketHandler) GetTicketsByStatus(c *gin.Context) {
 	status := c.Param("status")
 	tickets, err := h.ticketService.GetByStatus(status)
@@ -153,7 +155,8 @@ func (h *TicketHandler) GetTicketsByStatus(c *gin.Context) {
 // @Tags tickets
 // @Produce json
 // @Success 200 {object} models.APIResponse
-// @Router /api/tickets/pending [get]
+// NOTE: This endpoint is not registered in the router - comment out to hide from Swagger
+// //@Router /api/tickets/v1/pending [get]
 func (h *TicketHandler) GetPendingTickets(c *gin.Context) {
 	tickets, err := h.ticketService.GetPendingTickets()
 	if err != nil {
@@ -178,7 +181,8 @@ func (h *TicketHandler) GetPendingTickets(c *gin.Context) {
 // @Produce json
 // @Param q query string true "Search query"
 // @Success 200 {object} models.APIResponse
-// @Router /api/tickets/search [get]
+// NOTE: This endpoint is not registered in the router - comment out to hide from Swagger
+// //@Router /api/tickets/v1/search [get]
 func (h *TicketHandler) SearchTickets(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
@@ -215,7 +219,7 @@ func (h *TicketHandler) SearchTickets(c *gin.Context) {
 // @Param ticket body models.CreateTicketRequest true "Ticket data"
 // @Success 201 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
-// @Router /api/tickets [post]
+// @Router /api/tickets/v1 [post]
 func (h *TicketHandler) CreateTicket(c *gin.Context) {
 	var req models.CreateTicketRequest
 
@@ -255,7 +259,7 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 // @Success 200 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
-// @Router /api/tickets/{id} [put]
+// @Router /api/tickets/v1/{id} [put]
 func (h *TicketHandler) UpdateTicket(c *gin.Context) {
 	idParam := c.Param("id")
 	idInt, err := strconv.Atoi(idParam)
@@ -311,7 +315,7 @@ func (h *TicketHandler) UpdateTicket(c *gin.Context) {
 // @Success 200 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
-// @Router /api/tickets/{id}/status [patch]
+// @Router /api/tickets/v1/{id}/status [patch]
 func (h *TicketHandler) UpdateTicketStatus(c *gin.Context) {
 	idParam := c.Param("id")
 	idInt, err := strconv.Atoi(idParam)
@@ -365,7 +369,8 @@ func (h *TicketHandler) UpdateTicketStatus(c *gin.Context) {
 // @Success 200 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
-// @Router /api/tickets/{id}/approve [patch]
+// NOTE: This endpoint is not registered in the router - comment out to hide from Swagger
+// //@Router /api/tickets/v1/{id}/approve [patch]
 func (h *TicketHandler) ApproveTicket(c *gin.Context) {
 	idParam := c.Param("id")
 	idInt, err := strconv.Atoi(idParam)
@@ -409,7 +414,8 @@ func (h *TicketHandler) ApproveTicket(c *gin.Context) {
 // @Success 200 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
-// @Router /api/tickets/{id}/reject [patch]
+// NOTE: This endpoint is not registered in the router - comment out to hide from Swagger
+// //@Router /api/tickets/v1/{id}/reject [patch]
 func (h *TicketHandler) RejectTicket(c *gin.Context) {
 	idParam := c.Param("id")
 	idInt, err := strconv.Atoi(idParam)
@@ -453,7 +459,7 @@ func (h *TicketHandler) RejectTicket(c *gin.Context) {
 // @Param request body BulkUpdateStatusRequest true "Bulk update request"
 // @Success 200 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
-// @Router /api/tickets/bulk/status [patch]
+// @Router /api/tickets/v1/bulk-status [post]
 func (h *TicketHandler) BulkUpdateStatus(c *gin.Context) {
 	var req BulkUpdateStatusRequest
 
@@ -507,7 +513,7 @@ func (h *TicketHandler) BulkUpdateStatus(c *gin.Context) {
 // @Success 200 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
-// @Router /api/tickets/{id} [delete]
+// @Router /api/tickets/v1/{id} [delete]
 func (h *TicketHandler) DeleteTicket(c *gin.Context) {
 	idParam := c.Param("id")
 	idInt, err := strconv.Atoi(idParam)
@@ -542,7 +548,8 @@ func (h *TicketHandler) DeleteTicket(c *gin.Context) {
 // @Tags tickets
 // @Produce json
 // @Success 200 {object} models.APIResponse
-// @Router /api/tickets/statistics [get]
+// NOTE: This endpoint is not registered in the router - comment out to hide from Swagger
+// //@Router /api/tickets/v1/statistics [get]
 func (h *TicketHandler) GetStatistics(c *gin.Context) {
 	stats, err := h.ticketService.GetStatistics()
 	if err != nil {

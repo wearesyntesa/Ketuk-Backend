@@ -63,7 +63,7 @@ func (s *EnhancedTicketService) UpdateStatusWithEvents(ctx context.Context, id u
 		ticket.ID, currentTicket.Status, status)
 
 	// Send status change notification
-	go s.sendStatusChangeNotification(ctx, ticket, currentTicket.Status)
+	go s.sendStatusChangeNotification(ctx, ticket, models.TicketStatus(currentTicket.Status))
 
 	// If ticket is accepted, send acceptance email
 	if status == "accepted" {
@@ -135,12 +135,12 @@ func (s *EnhancedTicketService) sendTicketCreatedNotification(ctx context.Contex
 		ticket.ID, ticket.Title)
 }
 
-func (s *EnhancedTicketService) sendStatusChangeNotification(ctx context.Context, ticket *models.Ticket, oldStatus string) {
+func (s *EnhancedTicketService) sendStatusChangeNotification(ctx context.Context, ticket *models.Ticket, oldStatus models.TicketStatus) {
 	var title string
 	switch ticket.Status {
-	case "accepted":
+	case models.StatusAccepted:
 		title = "Ticket Accepted"
-	case "rejected":
+	case models.StatusRejected:
 		title = "Ticket Rejected"
 	default:
 		title = "Ticket Status Updated"

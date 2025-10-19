@@ -26,7 +26,7 @@ func NewUserHandler(userService *services.UserService) *UserHandler {
 // @Tags users
 // @Produce json
 // @Success 200 {object} models.APIResponse
-// @Router /api/users [get]
+// @Router /api/users/v1 [get]
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
 	users, err := h.userService.GetAll()
 	if err != nil {
@@ -53,7 +53,7 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 // @Success 200 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
-// @Router /api/users/{id} [get]
+// @Router /api/users/v1/{id} [get]
 func (h *UserHandler) GetUserByID(c *gin.Context) {
 	idParam := c.Param("id")
 	idInt, err := strconv.Atoi(idParam)
@@ -92,7 +92,7 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 // @Param user body models.CreateUserRequest true "User data"
 // @Success 201 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
-// @Router /api/users [post]
+// @Router /api/users/v1 [post]
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var req models.CreateUserRequest
 
@@ -132,7 +132,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 // @Success 200 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
-// @Router /api/users/{id} [put]
+// @Router /api/users/v1/{id} [put]
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	idParam := c.Param("id")
 	idInt, err := strconv.Atoi(idParam)
@@ -186,7 +186,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 // @Success 200 {object} models.APIResponse
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
-// @Router /api/users/{id} [delete]
+// @Router /api/users/v1/{id} [delete]
 func (h *UserHandler) DeleteUser(c *gin.Context) {
 	idParam := c.Param("id")
 	idInt, err := strconv.Atoi(idParam)

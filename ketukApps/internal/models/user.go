@@ -4,36 +4,46 @@ import (
 	"time"
 )
 
+// User represents a user in the system
+// @Description User account information
 type User struct {
-	ID        uint      `json:"id" gorm:"primaryKey"`
-	GoogleSub string    `json:"google_sub" gorm:"uniqueIndex;size:255;not null"`
-	Name      string    `json:"name" binding:"required" gorm:"column:full_name;size:255;not null"`
-	Email     string    `json:"email" binding:"required,email" gorm:"uniqueIndex;size:255;not null"`
-	Role      string    `json:"role" gorm:"type:user_role;default:user"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint      `json:"id" gorm:"primaryKey" example:"1"`
+	GoogleSub string    `json:"google_sub" gorm:"uniqueIndex;size:255;not null" example:"google-oauth2|123456789"`
+	Name      string    `json:"name" binding:"required" gorm:"column:full_name;size:255;not null" example:"John Doe"`
+	Email     string    `json:"email" binding:"required,email" gorm:"uniqueIndex;size:255;not null" example:"john.doe@example.com"`
+	Role      string    `json:"role" gorm:"type:user_role;default:user" example:"user"`
+	CreatedAt time.Time `json:"created_at" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time `json:"updated_at" example:"2023-01-01T00:00:00Z"`
 }
 
+// CreateUserRequest represents the request body for creating a new user
+// @Description Request body for creating a new user
 type CreateUserRequest struct {
-	GoogleSub string `json:"google_sub" binding:"required"`
-	Name      string `json:"name" binding:"required"`
-	Email     string `json:"email" binding:"required,email"`
+	GoogleSub string `json:"google_sub" binding:"required" example:"google-oauth2|123456789"`
+	Name      string `json:"name" binding:"required" example:"John Doe"`
+	Email     string `json:"email" binding:"required,email" example:"john.doe@example.com"`
 }
 
+// UpdateUserRequest represents the request body for updating a user
+// @Description Request body for updating user information
 type UpdateUserRequest struct {
-	Name  string `json:"name,omitempty"`
-	Email string `json:"email,omitempty"`
+	Name  string `json:"name,omitempty" example:"Jane Doe"`
+	Email string `json:"email,omitempty" example:"jane.doe@example.com"`
 }
 
+// APIResponse represents a standard API response
+// @Description Standard API response format
 type APIResponse struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message"`
+	Success bool        `json:"success" example:"true"`
+	Message string      `json:"message" example:"Operation completed successfully"`
 	Data    interface{} `json:"data,omitempty"`
-	Error   string      `json:"error,omitempty"`
+	Error   string      `json:"error,omitempty" example:""`
 }
 
+// HealthResponse represents a health check response
+// @Description Health check response format
 type HealthResponse struct {
-	Status    string `json:"status"`
-	Timestamp string `json:"timestamp"`
-	Version   string `json:"version"`
+	Status    string `json:"status" example:"healthy"`
+	Timestamp string `json:"timestamp" example:"2023-01-01T00:00:00Z"`
+	Version   string `json:"version" example:"1.0.0"`
 }

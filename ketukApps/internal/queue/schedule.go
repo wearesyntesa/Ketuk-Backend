@@ -32,8 +32,6 @@ func SchduleWorker(name string, ticketService *services.TicketService, scheduleS
 				continue
 			}
 			log.Printf("Parsed RequestData: %+v", requestData)
-
-			// Step 1: Create schedule_ticket first
 			scheduleTicket := &models.ScheduleTicket{
 				Title:       requestData.Title,
 				StartDate:   requestData.StartDate,
@@ -50,13 +48,11 @@ func SchduleWorker(name string, ticketService *services.TicketService, scheduleS
 				continue
 			}
 			log.Printf("Successfully saved schedule_ticket to database with ID: %d", savedSchedule.IDSchedule)
-
-			// Step 2: Create ticket with the schedule ID as foreign key
 			ticket := &models.Ticket{
 				UserID:      requestData.UserID,
 				Title:       requestData.Title,
 				Description: requestData.Description,
-				Status:      requestData.Status,
+				Status:      models.TicketStatus(requestData.Status),
 				IDSchedule:  &savedSchedule.IDSchedule,
 			}
 
