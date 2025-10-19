@@ -130,6 +130,7 @@ func setupRouter(userHandler *handlers.UserHandler, ticketHandler *handlers.Tick
 			// Item endpoints would go here
 			items.GET("/v1", itemHandler.GetAllItems)
 			items.GET("/v1/:id", itemHandler.GetItemByID)
+			items.GET("/v1/category/:category_id", itemHandler.GetItemsByCategoryID)
 			items.POST("/v1", itemHandler.CreateItem)
 			items.PUT("/v1/:id", itemHandler.UpdateItem)
 			items.DELETE("/v1/:id", itemHandler.DeleteItem)

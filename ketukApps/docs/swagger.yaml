@@ -80,6 +80,62 @@ definitions:
         example: 1.0.0
         type: string
     type: object
+  models.Item:
+    description: Item information
+    properties:
+      category:
+        $ref: '#/definitions/models.ItemCategory'
+      categoryId:
+        example: 1
+        type: integer
+      createdAt:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      kondisi:
+        example: Baik
+        type: string
+      name:
+        example: PC-001
+        type: string
+      note:
+        example: Kondisi normal, ready to use
+        type: string
+      updatedAt:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      year:
+        example: 2023
+        type: integer
+    type: object
+  models.ItemCategory:
+    description: Item category information
+    properties:
+      categoryName:
+        example: Komputer
+        type: string
+      createdAt:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/models.Item'
+        type: array
+      quantity:
+        example: 10
+        type: integer
+      specification:
+        example: Komputer Desktop Intel Core i5
+        type: string
+      updatedAt:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+    type: object
   models.UpdateTicketRequest:
     description: Request body for updating a ticket
     properties:
@@ -113,6 +169,281 @@ info:
   title: KetukApps API
   version: "1.0"
 paths:
+  /api/item-categories/v1:
+    get:
+      description: Get a list of all item categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      summary: Get all item categories
+      tags:
+      - item-categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new item category
+      parameters:
+      - description: Item category data
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/models.ItemCategory'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      summary: Create a new item category
+      tags:
+      - item-categories
+  /api/item-categories/v1/{id}:
+    delete:
+      description: Delete an item category by ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      summary: Delete item category
+      tags:
+      - item-categories
+    get:
+      description: Get an item category by its ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      summary: Get item category by ID
+      tags:
+      - item-categories
+    put:
+      consumes:
+      - application/json
+      description: Update item category information by ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated category data
+        in: body
+        name: updates
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      summary: Update item category
+      tags:
+      - item-categories
+  /api/items/v1:
+    get:
+      description: Get a list of all items
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      summary: Get all items
+      tags:
+      - items
+    post:
+      consumes:
+      - application/json
+      description: Create a new item
+      parameters:
+      - description: Item data
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/models.Item'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      summary: Create a new item
+      tags:
+      - items
+  /api/items/v1/{id}:
+    delete:
+      description: Delete an item by ID
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      summary: Delete item
+      tags:
+      - items
+    get:
+      description: Get an item by its ID
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      summary: Get item by ID
+      tags:
+      - items
+    put:
+      consumes:
+      - application/json
+      description: Update item information by ID
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated item data
+        in: body
+        name: updates
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      summary: Update item
+      tags:
+      - items
+  /api/items/v1/category/{category_id}:
+    get:
+      description: Get all items for a specific category
+      parameters:
+      - description: Category ID
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      summary: Get items by category ID
+      tags:
+      - items
   /api/tickets/v1:
     get:
       description: Get a list of all tickets

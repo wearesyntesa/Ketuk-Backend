@@ -22,7 +22,12 @@ func NewItemHandler(itemService *services.ItemService) *ItemHandler {
 
 // ItemCategory Handlers
 
-// GetAllItemCategories handles GET /api/items/categories
+// @Summary Get all item categories
+// @Description Get a list of all item categories
+// @Tags item-categories
+// @Produce json
+// @Success 200 {object} models.APIResponse
+// @Router /api/item-categories/v1 [get]
 func (h *ItemHandler) GetAllItemCategories(c *gin.Context) {
 	categories, err := h.itemService.GetAllItemCategories()
 	if err != nil {
@@ -41,7 +46,15 @@ func (h *ItemHandler) GetAllItemCategories(c *gin.Context) {
 	})
 }
 
-// GetItemCategoryByID handles GET /api/items/categories/:id
+// @Summary Get item category by ID
+// @Description Get an item category by its ID
+// @Tags item-categories
+// @Produce json
+// @Param id path int true "Category ID"
+// @Success 200 {object} models.APIResponse
+// @Failure 400 {object} models.APIResponse
+// @Failure 404 {object} models.APIResponse
+// @Router /api/item-categories/v1/{id} [get]
 func (h *ItemHandler) GetItemCategoryByID(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -71,7 +84,15 @@ func (h *ItemHandler) GetItemCategoryByID(c *gin.Context) {
 	})
 }
 
-// CreateItemCategory handles POST /api/items/categories
+// @Summary Create a new item category
+// @Description Create a new item category
+// @Tags item-categories
+// @Accept json
+// @Produce json
+// @Param category body models.ItemCategory true "Item category data"
+// @Success 201 {object} models.APIResponse
+// @Failure 400 {object} models.APIResponse
+// @Router /api/item-categories/v1 [post]
 func (h *ItemHandler) CreateItemCategory(c *gin.Context) {
 	var category models.ItemCategory
 
@@ -101,7 +122,17 @@ func (h *ItemHandler) CreateItemCategory(c *gin.Context) {
 	})
 }
 
-// UpdateItemCategory handles PUT /api/items/categories/:id
+// @Summary Update item category
+// @Description Update item category information by ID
+// @Tags item-categories
+// @Accept json
+// @Produce json
+// @Param id path int true "Category ID"
+// @Param updates body map[string]interface{} true "Updated category data"
+// @Success 200 {object} models.APIResponse
+// @Failure 400 {object} models.APIResponse
+// @Failure 404 {object} models.APIResponse
+// @Router /api/item-categories/v1/{id} [put]
 func (h *ItemHandler) UpdateItemCategory(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -146,7 +177,15 @@ func (h *ItemHandler) UpdateItemCategory(c *gin.Context) {
 	})
 }
 
-// DeleteItemCategory handles DELETE /api/items/categories/:id
+// @Summary Delete item category
+// @Description Delete an item category by ID
+// @Tags item-categories
+// @Produce json
+// @Param id path int true "Category ID"
+// @Success 200 {object} models.APIResponse
+// @Failure 400 {object} models.APIResponse
+// @Failure 404 {object} models.APIResponse
+// @Router /api/item-categories/v1/{id} [delete]
 func (h *ItemHandler) DeleteItemCategory(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -182,7 +221,12 @@ func (h *ItemHandler) DeleteItemCategory(c *gin.Context) {
 
 // Item Handlers
 
-// GetAllItems handles GET /api/items
+// @Summary Get all items
+// @Description Get a list of all items
+// @Tags items
+// @Produce json
+// @Success 200 {object} models.APIResponse
+// @Router /api/items/v1 [get]
 func (h *ItemHandler) GetAllItems(c *gin.Context) {
 	items, err := h.itemService.GetAllItems()
 	if err != nil {
@@ -201,7 +245,15 @@ func (h *ItemHandler) GetAllItems(c *gin.Context) {
 	})
 }
 
-// GetItemByID handles GET /api/items/:id
+// @Summary Get item by ID
+// @Description Get an item by its ID
+// @Tags items
+// @Produce json
+// @Param id path int true "Item ID"
+// @Success 200 {object} models.APIResponse
+// @Failure 400 {object} models.APIResponse
+// @Failure 404 {object} models.APIResponse
+// @Router /api/items/v1/{id} [get]
 func (h *ItemHandler) GetItemByID(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -231,7 +283,14 @@ func (h *ItemHandler) GetItemByID(c *gin.Context) {
 	})
 }
 
-// GetItemsByCategoryID handles GET /api/items/category/:category_id
+// @Summary Get items by category ID
+// @Description Get all items for a specific category
+// @Tags items
+// @Produce json
+// @Param category_id path int true "Category ID"
+// @Success 200 {object} models.APIResponse
+// @Failure 400 {object} models.APIResponse
+// @Router /api/items/v1/category/{category_id} [get]
 func (h *ItemHandler) GetItemsByCategoryID(c *gin.Context) {
 	categoryIDParam := c.Param("category_id")
 	categoryID, err := strconv.Atoi(categoryIDParam)
@@ -261,7 +320,14 @@ func (h *ItemHandler) GetItemsByCategoryID(c *gin.Context) {
 	})
 }
 
-// SearchItems handles GET /api/items/search?q=query
+// NOTE: This endpoint is not registered in the router - comment out to hide from Swagger
+// //@Summary Search items
+// //@Description Search items by name or note
+// //@Tags items
+// //@Produce json
+// //@Param q query string true "Search query"
+// //@Success 200 {object} models.APIResponse
+// //@Router /api/items/v1/search [get]
 func (h *ItemHandler) SearchItems(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
@@ -290,7 +356,14 @@ func (h *ItemHandler) SearchItems(c *gin.Context) {
 	})
 }
 
-// GetItemsByKondisi handles GET /api/items/kondisi/:kondisi
+// NOTE: This endpoint is not registered in the router - comment out to hide from Swagger
+// //@Summary Get items by kondisi
+// //@Description Get all items with a specific condition
+// //@Tags items
+// //@Produce json
+// //@Param kondisi path string true "Item Kondisi (Baik, Rusak Ringan, Rusak Berat)"
+// //@Success 200 {object} models.APIResponse
+// //@Router /api/items/v1/kondisi/{kondisi} [get]
 func (h *ItemHandler) GetItemsByKondisi(c *gin.Context) {
 	kondisi := c.Param("kondisi")
 
@@ -311,7 +384,15 @@ func (h *ItemHandler) GetItemsByKondisi(c *gin.Context) {
 	})
 }
 
-// CreateItem handles POST /api/items
+// @Summary Create a new item
+// @Description Create a new item
+// @Tags items
+// @Accept json
+// @Produce json
+// @Param item body models.Item true "Item data"
+// @Success 201 {object} models.APIResponse
+// @Failure 400 {object} models.APIResponse
+// @Router /api/items/v1 [post]
 func (h *ItemHandler) CreateItem(c *gin.Context) {
 	var item models.Item
 
@@ -341,7 +422,17 @@ func (h *ItemHandler) CreateItem(c *gin.Context) {
 	})
 }
 
-// UpdateItem handles PUT /api/items/:id
+// @Summary Update item
+// @Description Update item information by ID
+// @Tags items
+// @Accept json
+// @Produce json
+// @Param id path int true "Item ID"
+// @Param updates body map[string]interface{} true "Updated item data"
+// @Success 200 {object} models.APIResponse
+// @Failure 400 {object} models.APIResponse
+// @Failure 404 {object} models.APIResponse
+// @Router /api/items/v1/{id} [put]
 func (h *ItemHandler) UpdateItem(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -386,7 +477,15 @@ func (h *ItemHandler) UpdateItem(c *gin.Context) {
 	})
 }
 
-// DeleteItem handles DELETE /api/items/:id
+// @Summary Delete item
+// @Description Delete an item by ID
+// @Tags items
+// @Produce json
+// @Param id path int true "Item ID"
+// @Success 200 {object} models.APIResponse
+// @Failure 400 {object} models.APIResponse
+// @Failure 404 {object} models.APIResponse
+// @Router /api/items/v1/{id} [delete]
 func (h *ItemHandler) DeleteItem(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -415,7 +514,13 @@ func (h *ItemHandler) DeleteItem(c *gin.Context) {
 	})
 }
 
-// GetItemStatistics handles GET /api/items/statistics
+// NOTE: This endpoint is not registered in the router - comment out to hide from Swagger
+// //@Summary Get item statistics
+// //@Description Get statistics about items (counts by category and kondisi)
+// //@Tags items
+// //@Produce json
+// //@Success 200 {object} models.APIResponse
+// //@Router /api/items/v1/statistics [get]
 func (h *ItemHandler) GetItemStatistics(c *gin.Context) {
 	stats, err := h.itemService.GetItemStatistics()
 	if err != nil {
