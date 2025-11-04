@@ -45,7 +45,7 @@ func (h *ScheduleHandler) GetAllScheduleTickets(c *gin.Context) {
 // GetScheduleTicketByID handles GET /api/schedules/tickets/:id
 func (h *ScheduleHandler) GetScheduleTicketByID(c *gin.Context) {
 	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+	idInt, err := strconv.Atoi(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -54,6 +54,8 @@ func (h *ScheduleHandler) GetScheduleTicketByID(c *gin.Context) {
 		})
 		return
 	}
+
+	id := uint(idInt)
 
 	schedule, err := h.scheduleService.GetScheduleTicketByID(id)
 	if err != nil {
@@ -75,7 +77,7 @@ func (h *ScheduleHandler) GetScheduleTicketByID(c *gin.Context) {
 // GetScheduleTicketsByUserID handles GET /api/schedules/tickets/user/:user_id
 func (h *ScheduleHandler) GetScheduleTicketsByUserID(c *gin.Context) {
 	userIDParam := c.Param("user_id")
-	userID, err := strconv.Atoi(userIDParam)
+	userIDInt, err := strconv.Atoi(userIDParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -84,6 +86,8 @@ func (h *ScheduleHandler) GetScheduleTicketsByUserID(c *gin.Context) {
 		})
 		return
 	}
+
+	userID := uint(userIDInt)
 
 	schedules, err := h.scheduleService.GetScheduleTicketsByUserID(userID)
 	if err != nil {
@@ -157,7 +161,7 @@ func (h *ScheduleHandler) CreateScheduleTicket(c *gin.Context) {
 // UpdateScheduleTicket handles PUT /api/schedules/tickets/:id
 func (h *ScheduleHandler) UpdateScheduleTicket(c *gin.Context) {
 	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+	idInt, err := strconv.Atoi(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -166,6 +170,8 @@ func (h *ScheduleHandler) UpdateScheduleTicket(c *gin.Context) {
 		})
 		return
 	}
+
+	id := uint(idInt)
 
 	var updates map[string]interface{}
 	if err := c.ShouldBindJSON(&updates); err != nil {
@@ -202,7 +208,7 @@ func (h *ScheduleHandler) UpdateScheduleTicket(c *gin.Context) {
 // DeleteScheduleTicket handles DELETE /api/schedules/tickets/:id
 func (h *ScheduleHandler) DeleteScheduleTicket(c *gin.Context) {
 	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+	idInt, err := strconv.Atoi(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -211,6 +217,8 @@ func (h *ScheduleHandler) DeleteScheduleTicket(c *gin.Context) {
 		})
 		return
 	}
+
+	id := uint(idInt)
 
 	err = h.scheduleService.DeleteScheduleTicket(id)
 	if err != nil {
@@ -252,7 +260,7 @@ func (h *ScheduleHandler) GetAllScheduleReguler(c *gin.Context) {
 // GetScheduleRegulerByID handles GET /api/schedules/reguler/:id
 func (h *ScheduleHandler) GetScheduleRegulerByID(c *gin.Context) {
 	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+	idInt, err := strconv.Atoi(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -261,6 +269,8 @@ func (h *ScheduleHandler) GetScheduleRegulerByID(c *gin.Context) {
 		})
 		return
 	}
+
+	id := uint(idInt)
 
 	schedule, err := h.scheduleService.GetScheduleRegulerByID(id)
 	if err != nil {
@@ -282,7 +292,7 @@ func (h *ScheduleHandler) GetScheduleRegulerByID(c *gin.Context) {
 // GetScheduleRegulerByUserID handles GET /api/schedules/reguler/user/:user_id
 func (h *ScheduleHandler) GetScheduleRegulerByUserID(c *gin.Context) {
 	userIDParam := c.Param("user_id")
-	userID, err := strconv.Atoi(userIDParam)
+	userIDInt, err := strconv.Atoi(userIDParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -291,6 +301,8 @@ func (h *ScheduleHandler) GetScheduleRegulerByUserID(c *gin.Context) {
 		})
 		return
 	}
+
+	userID := uint(userIDInt)
 
 	schedules, err := h.scheduleService.GetScheduleRegulerByUserID(userID)
 	if err != nil {
@@ -342,7 +354,7 @@ func (h *ScheduleHandler) CreateScheduleReguler(c *gin.Context) {
 // UpdateScheduleReguler handles PUT /api/schedules/reguler/:id
 func (h *ScheduleHandler) UpdateScheduleReguler(c *gin.Context) {
 	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+	idInt, err := strconv.Atoi(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -351,6 +363,8 @@ func (h *ScheduleHandler) UpdateScheduleReguler(c *gin.Context) {
 		})
 		return
 	}
+
+	id := uint(idInt)
 
 	var updates map[string]interface{}
 	if err := c.ShouldBindJSON(&updates); err != nil {
@@ -387,7 +401,7 @@ func (h *ScheduleHandler) UpdateScheduleReguler(c *gin.Context) {
 // DeleteScheduleReguler handles DELETE /api/schedules/reguler/:id
 func (h *ScheduleHandler) DeleteScheduleReguler(c *gin.Context) {
 	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+	idInt, err := strconv.Atoi(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -396,6 +410,8 @@ func (h *ScheduleHandler) DeleteScheduleReguler(c *gin.Context) {
 		})
 		return
 	}
+
+	id := uint(idInt)
 
 	err = h.scheduleService.DeleteScheduleReguler(id)
 	if err != nil {
@@ -437,7 +453,7 @@ func (h *ScheduleHandler) GetAllUnblocking(c *gin.Context) {
 // GetUnblockingByID handles GET /api/unblocking/:id
 func (h *ScheduleHandler) GetUnblockingByID(c *gin.Context) {
 	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+	idInt, err := strconv.Atoi(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -446,6 +462,8 @@ func (h *ScheduleHandler) GetUnblockingByID(c *gin.Context) {
 		})
 		return
 	}
+
+	id := uint(idInt)
 
 	unblocking, err := h.scheduleService.GetUnblockingByID(id)
 	if err != nil {
@@ -467,7 +485,7 @@ func (h *ScheduleHandler) GetUnblockingByID(c *gin.Context) {
 // GetUnblockingByUserID handles GET /api/unblocking/user/:user_id
 func (h *ScheduleHandler) GetUnblockingByUserID(c *gin.Context) {
 	userIDParam := c.Param("user_id")
-	userID, err := strconv.Atoi(userIDParam)
+	userIDInt, err := strconv.Atoi(userIDParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -476,6 +494,8 @@ func (h *ScheduleHandler) GetUnblockingByUserID(c *gin.Context) {
 		})
 		return
 	}
+
+	userID := uint(userIDInt)
 
 	unblockings, err := h.scheduleService.GetUnblockingByUserID(userID)
 	if err != nil {
@@ -563,7 +583,7 @@ func (h *ScheduleHandler) CreateUnblocking(c *gin.Context) {
 // UpdateUnblocking handles PUT /api/unblocking/:id
 func (h *ScheduleHandler) UpdateUnblocking(c *gin.Context) {
 	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+	idInt, err := strconv.Atoi(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -572,6 +592,8 @@ func (h *ScheduleHandler) UpdateUnblocking(c *gin.Context) {
 		})
 		return
 	}
+
+	id := uint(idInt)
 
 	var updates map[string]interface{}
 	if err := c.ShouldBindJSON(&updates); err != nil {
@@ -608,7 +630,7 @@ func (h *ScheduleHandler) UpdateUnblocking(c *gin.Context) {
 // DeleteUnblocking handles DELETE /api/unblocking/:id
 func (h *ScheduleHandler) DeleteUnblocking(c *gin.Context) {
 	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+	idInt, err := strconv.Atoi(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -617,6 +639,8 @@ func (h *ScheduleHandler) DeleteUnblocking(c *gin.Context) {
 		})
 		return
 	}
+
+	id := uint(idInt)
 
 	err = h.scheduleService.DeleteUnblocking(id)
 	if err != nil {

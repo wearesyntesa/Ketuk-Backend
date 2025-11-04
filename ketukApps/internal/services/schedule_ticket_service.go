@@ -29,7 +29,7 @@ func (s *ScheduleService) GetAllScheduleTickets() ([]models.ScheduleTicket, erro
 }
 
 // GetScheduleTicketByID returns a schedule ticket by its ID
-func (s *ScheduleService) GetScheduleTicketByID(id int) (*models.ScheduleTicket, error) {
+func (s *ScheduleService) GetScheduleTicketByID(id uint) (*models.ScheduleTicket, error) {
 	var schedule models.ScheduleTicket
 	result := s.db.Preload("User").Preload("Tickets").First(&schedule, id)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -39,7 +39,7 @@ func (s *ScheduleService) GetScheduleTicketByID(id int) (*models.ScheduleTicket,
 }
 
 // GetScheduleTicketsByUserID returns all schedule tickets for a specific user
-func (s *ScheduleService) GetScheduleTicketsByUserID(userID int) ([]models.ScheduleTicket, error) {
+func (s *ScheduleService) GetScheduleTicketsByUserID(userID uint) ([]models.ScheduleTicket, error) {
 	var schedules []models.ScheduleTicket
 	result := s.db.Preload("User").Preload("Tickets").Where("user_id = ?", userID).Find(&schedules)
 	return schedules, result.Error
@@ -81,7 +81,7 @@ func (s *ScheduleService) CreateScheduleTicket(schedule *models.ScheduleTicket) 
 }
 
 // UpdateScheduleTicket updates a schedule ticket
-func (s *ScheduleService) UpdateScheduleTicket(id int, updates map[string]interface{}) (*models.ScheduleTicket, error) {
+func (s *ScheduleService) UpdateScheduleTicket(id uint, updates map[string]interface{}) (*models.ScheduleTicket, error) {
 	var schedule models.ScheduleTicket
 	if err := s.db.First(&schedule, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -103,7 +103,7 @@ func (s *ScheduleService) UpdateScheduleTicket(id int, updates map[string]interf
 }
 
 // DeleteScheduleTicket removes a schedule ticket
-func (s *ScheduleService) DeleteScheduleTicket(id int) error {
+func (s *ScheduleService) DeleteScheduleTicket(id uint) error {
 	result := s.db.Delete(&models.ScheduleTicket{}, id)
 	if result.Error != nil {
 		return result.Error
@@ -124,7 +124,7 @@ func (s *ScheduleService) GetAllScheduleReguler() ([]models.ScheduleReguler, err
 }
 
 // GetScheduleRegulerByID returns a regular schedule by its ID
-func (s *ScheduleService) GetScheduleRegulerByID(id int) (*models.ScheduleReguler, error) {
+func (s *ScheduleService) GetScheduleRegulerByID(id uint) (*models.ScheduleReguler, error) {
 	var schedule models.ScheduleReguler
 	result := s.db.Preload("User").First(&schedule, id)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -134,7 +134,7 @@ func (s *ScheduleService) GetScheduleRegulerByID(id int) (*models.ScheduleRegule
 }
 
 // GetScheduleRegulerByUserID returns all regular schedules for a specific user
-func (s *ScheduleService) GetScheduleRegulerByUserID(userID int) ([]models.ScheduleReguler, error) {
+func (s *ScheduleService) GetScheduleRegulerByUserID(userID uint) ([]models.ScheduleReguler, error) {
 	var schedules []models.ScheduleReguler
 	result := s.db.Preload("User").Where("user_id = ?", userID).Find(&schedules)
 	return schedules, result.Error
@@ -169,7 +169,7 @@ func (s *ScheduleService) CreateScheduleReguler(schedule *models.ScheduleReguler
 }
 
 // UpdateScheduleReguler updates a regular schedule
-func (s *ScheduleService) UpdateScheduleReguler(id int, updates map[string]interface{}) (*models.ScheduleReguler, error) {
+func (s *ScheduleService) UpdateScheduleReguler(id uint, updates map[string]interface{}) (*models.ScheduleReguler, error) {
 	var schedule models.ScheduleReguler
 	if err := s.db.First(&schedule, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -191,7 +191,7 @@ func (s *ScheduleService) UpdateScheduleReguler(id int, updates map[string]inter
 }
 
 // DeleteScheduleReguler removes a regular schedule
-func (s *ScheduleService) DeleteScheduleReguler(id int) error {
+func (s *ScheduleService) DeleteScheduleReguler(id uint) error {
 	result := s.db.Delete(&models.ScheduleReguler{}, id)
 	if result.Error != nil {
 		return result.Error
@@ -212,7 +212,7 @@ func (s *ScheduleService) GetAllUnblocking() ([]models.Unblocking, error) {
 }
 
 // GetUnblockingByID returns an unblocking record by its ID
-func (s *ScheduleService) GetUnblockingByID(id int) (*models.Unblocking, error) {
+func (s *ScheduleService) GetUnblockingByID(id uint) (*models.Unblocking, error) {
 	var unblocking models.Unblocking
 	result := s.db.Preload("User").First(&unblocking, id)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -222,7 +222,7 @@ func (s *ScheduleService) GetUnblockingByID(id int) (*models.Unblocking, error) 
 }
 
 // GetUnblockingByUserID returns all unblocking records for a specific user
-func (s *ScheduleService) GetUnblockingByUserID(userID int) ([]models.Unblocking, error) {
+func (s *ScheduleService) GetUnblockingByUserID(userID uint) ([]models.Unblocking, error) {
 	var unblockings []models.Unblocking
 	result := s.db.Preload("User").Where("user_id = ?", userID).Find(&unblockings)
 	return unblockings, result.Error
@@ -257,7 +257,7 @@ func (s *ScheduleService) CreateUnblocking(unblocking *models.Unblocking) (*mode
 }
 
 // UpdateUnblocking updates an unblocking record
-func (s *ScheduleService) UpdateUnblocking(id int, updates map[string]interface{}) (*models.Unblocking, error) {
+func (s *ScheduleService) UpdateUnblocking(id uint, updates map[string]interface{}) (*models.Unblocking, error) {
 	var unblocking models.Unblocking
 	if err := s.db.First(&unblocking, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -279,7 +279,7 @@ func (s *ScheduleService) UpdateUnblocking(id int, updates map[string]interface{
 }
 
 // DeleteUnblocking removes an unblocking record
-func (s *ScheduleService) DeleteUnblocking(id int) error {
+func (s *ScheduleService) DeleteUnblocking(id uint) error {
 	result := s.db.Delete(&models.Unblocking{}, id)
 	if result.Error != nil {
 		return result.Error
