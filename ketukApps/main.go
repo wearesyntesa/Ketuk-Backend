@@ -13,6 +13,7 @@ import (
 	"ketukApps/internal/database"
 	"ketukApps/internal/handlers"
 	"ketukApps/internal/middleware"
+	"ketukApps/internal/models"
 	"ketukApps/internal/queue"
 	"ketukApps/internal/services"
 )
@@ -56,6 +57,20 @@ func main() {
 	scheduleService := services.NewScheduleService(db)
 	itemsService := services.NewItemService(db)
 
+	// Set callback for when ticket is accepted
+	ticketService.SetOnTicketAcceptedCallback(func(ticket *models.Ticket) error {
+		message := &queue.ScheduleTicketMessage{
+			UserID:      ticket.UserID,
+			Title:       ticket.Title,
+			Description: ticket.Description,
+			Status:      string(ticket.Status),
+			Category:    ticket.Category,
+			StartDate:   ticket.StartDate,
+			EndDate:     ticket.EndDate,
+		}
+		return queue.PublishScheduleMessage(message)
+	})
+
 	// Start the worker with ticket service and schedule service
 	go func() {
 		if err := queue.SchduleWorker("schedule", ticketService, scheduleService); err != nil {
@@ -65,11 +80,12 @@ func main() {
 
 	// Initialize handlers
 	userHandler := handlers.NewUserHandler(userService)
-	tickets := handlers.NewTicketHandler(ticketService)
-	items := handlers.NewItemHandler(itemsService)
+	ticketHandler := handlers.NewTicketHandler(ticketService)
+	scheduleHandler := handlers.NewScheduleHandler(scheduleService)
+	itemHandler := handlers.NewItemHandler(itemsService)
 
 	// Setup Gin router
-	router := setupRouter(userHandler, tickets, items)
+	router := setupRouter(userHandler, ticketHandler, scheduleHandler, itemHandler)
 
 	// Start server
 	address := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
@@ -81,7 +97,7 @@ func main() {
 	}
 }
 
-func setupRouter(userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler) *gin.Engine {
+func setupRouter(userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, scheduleHandler *handlers.ScheduleHandler, itemHandler *handlers.ItemHandler) *gin.Engine {
 	// Set Gin mode based on environment
 	gin.SetMode(gin.ReleaseMode) // Change to gin.DebugMode for development
 
@@ -144,6 +160,41 @@ func setupRouter(userHandler *handlers.UserHandler, ticketHandler *handlers.Tick
 			ItemsCategory.POST("/v1", itemHandler.CreateItemCategory)
 			ItemsCategory.PUT("/v1/:id", itemHandler.UpdateItemCategory)
 			ItemsCategory.DELETE("/v1/:id", itemHandler.DeleteItemCategory)
+		}
+
+		schedules := api.Group("/schedules")
+		{
+			scheduleTickets := schedules.Group("/tickets")
+			{
+				scheduleTickets.GET("", scheduleHandler.GetAllScheduleTickets)
+				scheduleTickets.GET("/:id", scheduleHandler.GetScheduleTicketByID)
+				scheduleTickets.GET("/user/:user_id", scheduleHandler.GetScheduleTicketsByUserID)
+				scheduleTickets.GET("/category/:category", scheduleHandler.GetScheduleTicketsByCategory)
+				scheduleTickets.POST("", scheduleHandler.CreateScheduleTicket)
+				scheduleTickets.PUT("/:id", scheduleHandler.UpdateScheduleTicket)
+				scheduleTickets.DELETE("/:id", scheduleHandler.DeleteScheduleTicket)
+			}
+
+			reguler := schedules.Group("/reguler")
+			{
+				reguler.GET("", scheduleHandler.GetAllScheduleReguler)
+				reguler.GET("/:id", scheduleHandler.GetScheduleRegulerByID)
+				reguler.GET("/user/:user_id", scheduleHandler.GetScheduleRegulerByUserID)
+				reguler.POST("", scheduleHandler.CreateScheduleReguler)
+				reguler.PUT("/:id", scheduleHandler.UpdateScheduleReguler)
+				reguler.DELETE("/:id", scheduleHandler.DeleteScheduleReguler)
+			}
+		}
+
+		unblocking := api.Group("/unblocking")
+		{
+			unblocking.GET("", scheduleHandler.GetAllUnblocking)
+			unblocking.GET("/:id", scheduleHandler.GetUnblockingByID)
+			unblocking.GET("/user/:user_id", scheduleHandler.GetUnblockingByUserID)
+			unblocking.GET("/semester/:tahun/:semester", scheduleHandler.GetUnblockingBySemester)
+			unblocking.POST("", scheduleHandler.CreateUnblocking)
+			unblocking.PUT("/:id", scheduleHandler.UpdateUnblocking)
+			unblocking.DELETE("/:id", scheduleHandler.DeleteUnblocking)
 		}
 	}
 
