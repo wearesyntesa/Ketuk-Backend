@@ -11,13 +11,18 @@ import (
 )
 
 type TicketService struct {
-	db *gorm.DB
+	db                       *gorm.DB
+	onTicketAcceptedCallback func(*models.Ticket) error
 }
 
 func NewTicketService(db *gorm.DB) *TicketService {
 	return &TicketService{
 		db: db,
 	}
+}
+
+func (s *TicketService) SetOnTicketAcceptedCallback(callback func(*models.Ticket) error) {
+	s.onTicketAcceptedCallback = callback
 }
 
 // GetAll returns all tickets
@@ -85,7 +90,36 @@ func (s *TicketService) Create(userID uint, title, description string) (*models.
 
 // CreateFromRequest creates a new ticket from CreateTicketRequest
 func (s *TicketService) CreateFromRequest(req models.CreateTicketRequest) (*models.Ticket, error) {
-	return s.Create(req.UserID, req.Title, req.Description)
+	if req.Title == "" {
+		return nil, errors.New("title is required")
+	}
+	if req.Description == "" {
+		return nil, errors.New("description is required")
+	}
+	if req.Email == "" {
+		return nil, errors.New("email is required")
+	}
+
+	ticket := &models.Ticket{
+		UserID:      req.UserID,
+		Title:       req.Title,
+		Description: req.Description,
+		Category:    req.Category,
+		StartDate:   req.StartDate,
+		EndDate:     req.EndDate,
+		Email:       req.Email,
+		Phone:       req.Phone,
+		PIC:         req.PIC,
+		Status:      models.StatusPending,
+	}
+
+	result := s.db.Create(ticket)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	s.db.Preload("User").First(ticket, ticket.ID)
+	return ticket, nil
 }
 
 // CreateFromModel creates a new ticket from a models.Ticket (used for queue processing)
@@ -157,6 +191,14 @@ func (s *TicketService) UpdateStatus(id uint, status string) (*models.Ticket, er
 
 	// Reload with updated data
 	s.db.Preload("User").First(&ticket, id)
+
+	// Trigger callback when ticket is accepted
+	if status == "accepted" && s.onTicketAcceptedCallback != nil {
+		if err := s.onTicketAcceptedCallback(&ticket); err != nil {
+			return nil, fmt.Errorf("failed to handle ticket acceptance: %w", err)
+		}
+	}
+
 	return &ticket, nil
 }
 

@@ -36,7 +36,7 @@ func SchduleWorker(name string, ticketService *services.TicketService, scheduleS
 				Title:       requestData.Title,
 				StartDate:   requestData.StartDate,
 				EndDate:     requestData.EndDate,
-				UserID:      int(requestData.UserID),
+				UserID:      requestData.UserID,
 				Kategori:    requestData.Category,
 				Description: requestData.Description,
 			}
@@ -135,6 +135,46 @@ func parseBodyToJSON(body []byte) (*ScheduleTicketMessage, error) {
 		return nil, fmt.Errorf("failed to parse message body: %w", err)
 	}
 	return &message, nil
+}
+
+func PublishScheduleMessage(message *ScheduleTicketMessage) error {
+	if RabbitMQClient == nil || RabbitMQClient.Channel == nil {
+		return fmt.Errorf("RabbitMQ connection not initialized")
+	}
+
+	q, err := RabbitMQClient.Channel.QueueDeclare(
+		"schedule",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to declare queue: %w", err)
+	}
+
+	body, err := json.Marshal(message)
+	if err != nil {
+		return fmt.Errorf("failed to marshal message: %w", err)
+	}
+
+	err = RabbitMQClient.Channel.Publish(
+		"",
+		q.Name,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        body,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to publish message: %w", err)
+	}
+
+	log.Printf("Published schedule message: %+v", message)
+	return nil
 }
 
 func CloseRabbitMQ() {

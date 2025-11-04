@@ -4,11 +4,11 @@ import "time"
 
 // ScheduleTicket represents the schedule_ticket table (schedule from tickets)
 type ScheduleTicket struct {
-	IDSchedule  int       `json:"idSchedule" gorm:"primaryKey;column:id_schedule"`
+	IDSchedule  uint      `json:"idSchedule" gorm:"primaryKey;column:id_schedule"`
 	Title       string    `json:"title" gorm:"column:title;size:255;not null"`
 	StartDate   time.Time `json:"startDate" gorm:"column:start_date;not null"`
 	EndDate     time.Time `json:"endDate" gorm:"column:end_date;not null"`
-	UserID      int       `json:"userId" gorm:"column:user_id;not null"`
+	UserID      uint      `json:"userId" gorm:"column:user_id;not null"`
 	Kategori    Category  `json:"kategori" gorm:"column:kategori;type:ticket_category;not null"`
 	Description string    `json:"description" gorm:"column:description;type:text"`
 	CreatedAt   time.Time `json:"createdAt" gorm:"column:created_at;autoCreateTime"`
@@ -27,23 +27,23 @@ const (
 
 // Unblocking represents the unblocking table (semester unblocking)
 type Unblocking struct {
-	ID        int              `json:"id" gorm:"primaryKey;column:id"`
+	ID        uint             `json:"id" gorm:"primaryKey;column:id"`
 	Tahun     int              `json:"tahun" gorm:"column:tahun;not null"`
 	Semester  SemesterCategory `json:"semester" gorm:"column:semester;type:semester_category;not null"`
 	CreatedAt time.Time        `json:"createdAt" gorm:"column:created_at;not null"`
 	StartDate time.Time        `json:"startDate" gorm:"column:start_date;not null"`
-	UserID    int              `json:"userId" gorm:"column:user_id;not null"`
+	UserID    uint             `json:"userId" gorm:"column:user_id;not null"`
 	EndDate   time.Time        `json:"endDate" gorm:"column:end_date;not null"`
 	User      *User            `json:"user,omitempty" gorm:"foreignKey:UserID"`
 }
 
 // ScheduleReguler represents the schedule_reguler table
 type ScheduleReguler struct {
-	IDSchedule int       `json:"idSchedule" gorm:"primaryKey;column:id_schedule"`
+	IDSchedule uint      `json:"idSchedule" gorm:"primaryKey;column:id_schedule"`
 	Title      string    `json:"title" gorm:"column:title;size:255;not null"`
 	StartDate  time.Time `json:"startDate" gorm:"column:start_date;not null"`
 	EndDate    time.Time `json:"endDate" gorm:"column:end_date;not null"`
-	UserID     int       `json:"userId" gorm:"column:user_id;not null"`
+	UserID     uint      `json:"userId" gorm:"column:user_id;not null"`
 	CreatedAt  time.Time `json:"createdAt" gorm:"column:created_at;autoCreateTime"`
 	User       *User     `json:"user,omitempty" gorm:"foreignKey:UserID"`
 }

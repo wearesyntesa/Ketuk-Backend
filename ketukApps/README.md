@@ -66,6 +66,35 @@ For detailed API documentation with examples, request/response formats, and all 
 - `DELETE /api/tickets/v1/:id` - Delete ticket
 - `GET /api/tickets/statistics` - Get ticket statistics
 
+#### Schedule Management
+
+- `GET /api/schedules/tickets` - Get all schedule tickets
+- `GET /api/schedules/tickets/:id` - Get schedule ticket by ID
+- `GET /api/schedules/tickets/user/:user_id` - Get schedule tickets by user
+- `GET /api/schedules/tickets/category/:category` - Get schedule tickets by category
+- `POST /api/schedules/tickets` - Create new schedule ticket
+- `PUT /api/schedules/tickets/:id` - Update schedule ticket
+- `DELETE /api/schedules/tickets/:id` - Delete schedule ticket
+
+#### Schedule Reguler
+
+- `GET /api/schedules/reguler` - Get all regular schedules
+- `GET /api/schedules/reguler/:id` - Get regular schedule by ID
+- `GET /api/schedules/reguler/user/:user_id` - Get regular schedules by user
+- `POST /api/schedules/reguler` - Create new regular schedule
+- `PUT /api/schedules/reguler/:id` - Update regular schedule
+- `DELETE /api/schedules/reguler/:id` - Delete regular schedule
+
+#### Unblocking (Semester Management)
+
+- `GET /api/unblocking` - Get all unblocking records
+- `GET /api/unblocking/:id` - Get unblocking record by ID
+- `GET /api/unblocking/user/:user_id` - Get unblocking records by user
+- `GET /api/unblocking/semester/:tahun/:semester` - Get unblocking by semester
+- `POST /api/unblocking` - Create new unblocking record
+- `PUT /api/unblocking/:id` - Update unblocking record
+- `DELETE /api/unblocking/:id` - Delete unblocking record
+
 #### Documentation
 - `GET /api/docs` - View API documentation (HTML)
 
