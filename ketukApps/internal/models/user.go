@@ -7,13 +7,15 @@ import (
 // User represents a user in the system
 // @Description User account information
 type User struct {
-	ID        uint      `json:"id" gorm:"primaryKey" example:"1"`
-	GoogleSub string    `json:"google_sub" gorm:"uniqueIndex;size:255;not null" example:"google-oauth2|123456789"`
-	Name      string    `json:"name" binding:"required" gorm:"column:full_name;size:255;not null" example:"John Doe"`
-	Email     string    `json:"email" binding:"required,email" gorm:"uniqueIndex;size:255;not null" example:"john.doe@example.com"`
-	Role      string    `json:"role" gorm:"type:user_role;default:user" example:"user"`
-	CreatedAt time.Time `json:"created_at" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt time.Time `json:"updated_at" example:"2023-01-01T00:00:00Z"`
+	ID uint `json:"id" gorm:"primaryKey" example:"1"`
+	// GoogleSub is kept for backwards compatibility with existing data
+	GoogleSub  string    `json:"google_sub,omitempty" gorm:"uniqueIndex;size:255" example:"google-oauth2|123456789"`
+	Name       string    `json:"name" binding:"required" gorm:"column:full_name;size:255;not null" example:"John Doe"`
+	Email      string    `json:"email" binding:"required,email" gorm:"uniqueIndex;size:255;not null" example:"john.doe@example.com"`
+	Password   string    `json:"-" gorm:"size:255"` // Password hash, not included in JSON responses
+	Role       string    `json:"role" gorm:"type:user_role;default:user" example:"user"`
+	CreatedAt  time.Time `json:"created_at" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt  time.Time `json:"updated_at" example:"2023-01-01T00:00:00Z"`
 }
 
 // CreateUserRequest represents the request body for creating a new user
@@ -46,4 +48,10 @@ type HealthResponse struct {
 	Status    string `json:"status" example:"healthy"`
 	Timestamp string `json:"timestamp" example:"2023-01-01T00:00:00Z"`
 	Version   string `json:"version" example:"1.0.0"`
+}
+
+// RefreshTokenRequest represents the request body for refreshing token
+// @Description Request body for refreshing access token
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required" example:"refresh_token_123456789"`
 }

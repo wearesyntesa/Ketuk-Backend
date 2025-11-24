@@ -3,7 +3,6 @@ package handlers
 import (
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -105,7 +104,14 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.userService.Create(req)
+	user := &models.User{
+		GoogleSub: req.GoogleSub,
+		Name:      req.Name,
+		Email:     req.Email,
+		Role:      "user",
+	}
+
+	createdUser, err := h.userService.Create(user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -118,7 +124,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, models.APIResponse{
 		Success: true,
 		Message: "User created successfully",
-		Data:    user,
+		Data:    createdUser,
 	})
 }
 
@@ -213,19 +219,5 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, models.APIResponse{
 		Success: true,
 		Message: "User deleted successfully",
-	})
-}
-
-// @Summary Health check
-// @Description Check if the API is running
-// @Tags health
-// @Produce json
-// @Success 200 {object} models.HealthResponse
-// @Router /health [get]
-func HealthCheck(c *gin.Context) {
-	c.JSON(http.StatusOK, models.HealthResponse{
-		Status:    "healthy",
-		Timestamp: time.Now().Format(time.RFC3339),
-		Version:   "1.0.0",
 	})
 }

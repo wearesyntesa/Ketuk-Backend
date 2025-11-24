@@ -33,26 +33,24 @@ func (s *UserService) GetByID(id uint) (*models.User, error) {
 	return &user, result.Error
 }
 
-func (s *UserService) Create(req models.CreateUserRequest) (*models.User, error) {
+func (s *UserService) Create(user *models.User) (*models.User, error) {
 	// Check if email already exists
 	var existingUser models.User
-	if err := s.db.Where("email = ?", req.Email).First(&existingUser).Error; err == nil {
+	if err := s.db.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
 		return nil, errors.New("email already exists")
 	}
 
-	user := models.User{
-		GoogleSub: req.GoogleSub,
-		Name:      req.Name,
-		Email:     req.Email,
-		Role:      "user",
+	// Set default role if not provided
+	if user.Role == "" {
+		user.Role = "user"
 	}
 
-	result := s.db.Create(&user)
+	result := s.db.Create(user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return &user, nil
+	return user, nil
 }
 
 func (s *UserService) Update(id uint, req models.UpdateUserRequest) (*models.User, error) {

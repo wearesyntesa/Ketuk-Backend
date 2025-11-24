@@ -37,6 +37,7 @@ services:
       - ./migrations/000003_create_items_tables.up.sql:/migrations/000003_create_items_tables.up.sql
       - ./migrations/000004_create_schedule_tables.up.sql:/migrations/000004_create_schedule_tables.up.sql
       - ./migrations/000005_add_schedule_id_to_tickets.up.sql:/migrations/000005_add_schedule_id_to_tickets.up.sql
+      - ./migrations/000006_add_password_to_users.up.sql:/migrations/000006_add_password_to_users.up.sql
       - ./migrate.sh:/migrate.sh
     command: ["/migrate.sh"]
     restart: "no"

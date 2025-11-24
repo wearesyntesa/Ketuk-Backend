@@ -9,11 +9,26 @@ import (
 )
 
 type Config struct {
-	Port     string
-	Host     string
-	LogLevel string
-	Database DatabaseConfig
-	Queue    QueueConfig
+	Port      string
+	Host      string
+	LogLevel  string
+	JWTSecret string
+	Database  DatabaseConfig
+	Google    GoogleOAuthConfig
+	WorkOS    WorkOSConfig
+	Queue     QueueConfig
+}
+
+type GoogleOAuthConfig struct {
+	ClientID     string
+	ClientSecret string
+	RedirectURI  string
+}
+
+type WorkOSConfig struct {
+	ClientID     string
+	ClientSecret string
+	RedirectURI  string
 }
 
 type DatabaseConfig struct {
@@ -58,8 +73,6 @@ type QueuesConfig struct {
 	DeadLetters    string
 }
 
-
-
 func Load() *Config {
 	// Load .env file if it exists
 	if err := godotenv.Load(); err != nil {
@@ -67,9 +80,10 @@ func Load() *Config {
 	}
 
 	return &Config{
-		Port:     getEnv("PORT", "8080"),
-		Host:     getEnv("HOST", "localhost"),
-		LogLevel: getEnv("LOG_LEVEL", "info"),
+		Port:      getEnv("PORT", "8080"),
+		Host:      getEnv("HOST", "localhost"),
+		LogLevel:  getEnv("LOG_LEVEL", "info"),
+		JWTSecret: getEnv("JWT_SECRET", "your-secret-key-change-this-in-production"),
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
 			Port:     getEnv("DB_PORT", "5432"),
@@ -77,6 +91,11 @@ func Load() *Config {
 			Password: getEnv("DB_PASSWORD", "password"),
 			DBName:   getEnv("DB_NAME", "mydb"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
+		},
+		Google: GoogleOAuthConfig{
+			ClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
+			ClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
+			RedirectURI:  getEnv("GOOGLE_REDIRECT_URI", "http://localhost:8081/api/auth/v1/google/callback"),
 		},
 		Queue: QueueConfig{
 			Host:              getEnv("QUEUE_HOST", "localhost"),

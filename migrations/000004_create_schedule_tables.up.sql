@@ -8,7 +8,6 @@ END $$;
 -- Create schedule_from_ticket table
 CREATE TABLE schedule_ticket (
     id_schedule SERIAL PRIMARY KEY,
-    ticket_id INTEGER NOT NULL,
     title VARCHAR(255) NOT NULL,
     start_date TIMESTAMP NOT NULL,
     end_date TIMESTAMP NOT NULL,
@@ -17,7 +16,6 @@ CREATE TABLE schedule_ticket (
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 

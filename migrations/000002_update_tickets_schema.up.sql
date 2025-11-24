@@ -12,8 +12,8 @@ END $$;
 -- Add new columns to tickets table with default values
 ALTER TABLE tickets 
 ADD COLUMN IF NOT EXISTS category ticket_category DEFAULT 'Lainnya',
-ADD COLUMN IF NOT EXISTS starts_date timestamptz DEFAULT,
-ADD COLUMN IF NOT EXISTS ends_date timestamptz DEFAULT,
+ADD COLUMN IF NOT EXISTS start_date timestamptz DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN IF NOT EXISTS end_date timestamptz DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN IF NOT EXISTS email VARCHAR(100) DEFAULT '',
 ADD COLUMN IF NOT EXISTS phone VARCHAR(15) DEFAULT '',
 ADD COLUMN IF NOT EXISTS pic VARCHAR(100) DEFAULT '';

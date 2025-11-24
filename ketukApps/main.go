@@ -15,6 +15,7 @@ import (
 	"ketukApps/internal/middleware"
 	"ketukApps/internal/queue"
 	"ketukApps/internal/services"
+	"ketukApps/internal/utils"
 )
 
 // @title KetukApps API
@@ -36,6 +37,9 @@ func main() {
 	// Load configuration
 	cfg := config.Load()
 
+	// Set JWT secret
+	utils.SetJWTSecret(cfg.JWTSecret)
+
 	// Initialize database
 	if err := database.Initialize(cfg); err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
@@ -55,21 +59,23 @@ func main() {
 	ticketService := services.NewTicketService(db)
 	scheduleService := services.NewScheduleService(db)
 	itemsService := services.NewItemService(db)
+	googleOAuthService := services.NewGoogleOAuthService(cfg)
 
 	// Start the worker with ticket service and schedule service
 	go func() {
-		if err := queue.SchduleWorker("schedule", ticketService, scheduleService); err != nil {
+		if err := queue.SchduleWorker(cfg.Queue.Name, ticketService, scheduleService); err != nil {
 			log.Fatalf("Failed to start schedule worker: %v", err)
 		}
 	}()
 
 	// Initialize handlers
+	authHandler := handlers.NewAuthHandler(db, googleOAuthService)
 	userHandler := handlers.NewUserHandler(userService)
 	tickets := handlers.NewTicketHandler(ticketService)
 	items := handlers.NewItemHandler(itemsService)
 
 	// Setup Gin router
-	router := setupRouter(userHandler, tickets, items)
+	router := setupRouter(authHandler, userHandler, tickets, items)
 
 	// Start server
 	address := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
@@ -81,9 +87,9 @@ func main() {
 	}
 }
 
-func setupRouter(userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler) *gin.Engine {
+func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler) *gin.Engine {
 	// Set Gin mode based on environment
-	gin.SetMode(gin.ReleaseMode) // Change to gin.DebugMode for development
+	gin.SetMode(gin.DebugMode) // Change to gin.DebugMode for development
 
 	// Create router with default middleware
 	router := gin.New()
@@ -103,47 +109,74 @@ func setupRouter(userHandler *handlers.UserHandler, ticketHandler *handlers.Tick
 	// API routes group
 	api := router.Group("/api")
 	{
-		// Users endpoints
-		users := api.Group("/users")
+		// Auth endpoints (public)
+		auth := api.Group("/auth")
 		{
-			users.GET("/v1", userHandler.GetAllUsers)
-			users.GET("/v1/:id", userHandler.GetUserByID)
-			users.POST("/v1", userHandler.CreateUser)
-			users.PUT("/v1/:id", userHandler.UpdateUser)
-			users.DELETE("/v1/:id", userHandler.DeleteUser)
+			auth.POST("/v1/register", authHandler.Register)
+			auth.POST("/v1/login", authHandler.Login)
+			auth.POST("/v1/refresh", authHandler.RefreshToken)
+			auth.GET("/v1/me", middleware.AuthRequired(), authHandler.Me)
+
+			// Google OAuth
+			auth.GET("/v1/google/login", authHandler.GoogleLogin)
+			auth.GET("/v1/google/callback", authHandler.GoogleCallback)
 		}
 
-		tickets := api.Group("/tickets")
+		// Protected routes - require authentication
+		protected := api.Group("")
+		protected.Use(middleware.AuthRequired())
 		{
-			// Ticket endpoints would go here
-			tickets.GET("/v1", ticketHandler.GetAllTickets)
-			tickets.GET("/v1/:id", ticketHandler.GetTicketByID)
-			tickets.POST("/v1", ticketHandler.CreateTicket)
-			tickets.PUT("/v1/:id", ticketHandler.UpdateTicket)
-			tickets.DELETE("/v1/:id", ticketHandler.DeleteTicket)
-			tickets.PATCH("/v1/:id/status", ticketHandler.UpdateTicketStatus)
-			tickets.POST("/v1/bulk-status", ticketHandler.BulkUpdateStatus)
-		}
+			// Users endpoints - Admin only except GET (which can be accessed by authenticated users)
+			users := protected.Group("/users")
+			{
+				users.GET("/v1", middleware.RequireRole("admin", "user"), userHandler.GetAllUsers)
+				users.GET("/v1/:id", middleware.RequireRole("admin", "user"), userHandler.GetUserByID)
+				users.POST("/v1", middleware.RequireRole("admin"), userHandler.CreateUser)
+				users.PUT("/v1/:id", middleware.RequireRole("admin"), userHandler.UpdateUser)
+				users.DELETE("/v1/:id", middleware.RequireRole("admin"), userHandler.DeleteUser)
+			}
 
-		items := api.Group("/items")
-		{
-			// Item endpoints would go here
-			items.GET("/v1", itemHandler.GetAllItems)
-			items.GET("/v1/:id", itemHandler.GetItemByID)
-			items.GET("/v1/category/:category_id", itemHandler.GetItemsByCategoryID)
-			items.POST("/v1", itemHandler.CreateItem)
-			items.PUT("/v1/:id", itemHandler.UpdateItem)
-			items.DELETE("/v1/:id", itemHandler.DeleteItem)
-		}
+			// Tickets endpoints
+			tickets := protected.Group("/tickets")
+			{
+				// All authenticated users can view and create tickets
+				tickets.GET("/v1", middleware.RequireRole("admin", "user"), ticketHandler.GetAllTickets)
+				tickets.GET("/v1/:id", middleware.RequireRole("admin", "user"), ticketHandler.GetTicketByID)
+				tickets.POST("/v1", middleware.RequireRole("admin", "user"), ticketHandler.CreateTicket)
 
-		ItemsCategory := api.Group("/item-categories")
-		{
-			// Item Category endpoints would go here
-			ItemsCategory.GET("/v1", itemHandler.GetAllItemCategories)
-			ItemsCategory.GET("/v1/:id", itemHandler.GetItemCategoryByID)
-			ItemsCategory.POST("/v1", itemHandler.CreateItemCategory)
-			ItemsCategory.PUT("/v1/:id", itemHandler.UpdateItemCategory)
-			ItemsCategory.DELETE("/v1/:id", itemHandler.DeleteItemCategory)
+				// Only admin can update, delete, and change status
+				tickets.PUT("/v1/:id", middleware.RequireRole("admin"), ticketHandler.UpdateTicket)
+				tickets.DELETE("/v1/:id", middleware.RequireRole("admin"), ticketHandler.DeleteTicket)
+				tickets.PATCH("/v1/:id/status", middleware.RequireRole("admin"), ticketHandler.UpdateTicketStatus)
+				tickets.POST("/v1/bulk-status", middleware.RequireRole("admin"), ticketHandler.BulkUpdateStatus)
+			}
+
+			// Items endpoints
+			items := protected.Group("/items")
+			{
+				// Users can read, admin can do everything
+				items.GET("/v1", middleware.RequireRole("admin", "user"), itemHandler.GetAllItems)
+				items.GET("/v1/:id", middleware.RequireRole("admin", "user"), itemHandler.GetItemByID)
+				items.GET("/v1/category/:category_id", middleware.RequireRole("admin", "user"), itemHandler.GetItemsByCategoryID)
+
+				// Admin only
+				items.POST("/v1", middleware.RequireRole("admin"), itemHandler.CreateItem)
+				items.PUT("/v1/:id", middleware.RequireRole("admin"), itemHandler.UpdateItem)
+				items.DELETE("/v1/:id", middleware.RequireRole("admin"), itemHandler.DeleteItem)
+			}
+
+			// Item Categories endpoints
+			ItemsCategory := protected.Group("/item-categories")
+			{
+				// Users can read, admin can do everything
+				ItemsCategory.GET("/v1", middleware.RequireRole("admin", "user"), itemHandler.GetAllItemCategories)
+				ItemsCategory.GET("/v1/:id", middleware.RequireRole("admin", "user"), itemHandler.GetItemCategoryByID)
+
+				// Admin only
+				ItemsCategory.POST("/v1", middleware.RequireRole("admin"), itemHandler.CreateItemCategory)
+				ItemsCategory.PUT("/v1/:id", middleware.RequireRole("admin"), itemHandler.UpdateItemCategory)
+				ItemsCategory.DELETE("/v1/:id", middleware.RequireRole("admin"), itemHandler.DeleteItemCategory)
+			}
 		}
 	}
 
