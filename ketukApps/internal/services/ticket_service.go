@@ -116,7 +116,7 @@ func (s *TicketService) CreateFromModel(ticket *models.Ticket) (*models.Ticket, 
 }
 
 // UpdateStatus updates the status of a ticket
-func (s *TicketService) UpdateStatus(id uint, status string) (*models.Ticket, error) {
+func (s *TicketService) UpdateStatus(id uint, status, reason string) (*models.Ticket, error) {
 	validStatuses := []string{"pending", "accepted", "rejected"}
 
 	// Validate status
@@ -142,6 +142,7 @@ func (s *TicketService) UpdateStatus(id uint, status string) (*models.Ticket, er
 
 	updates := map[string]interface{}{
 		"status": status,
+		"reason": reason,
 	}
 
 	// Set approved_at time if status is accepted
@@ -244,21 +245,21 @@ func (s *TicketService) GetPendingTickets() ([]models.Ticket, error) {
 
 // ApproveTicket approves a ticket
 func (s *TicketService) ApproveTicket(id uint) (*models.Ticket, error) {
-	return s.UpdateStatus(id, "accepted")
+	return s.UpdateStatus(id, "accepted", "")
 }
 
 // RejectTicket rejects a ticket
 func (s *TicketService) RejectTicket(id uint) (*models.Ticket, error) {
-	return s.UpdateStatus(id, "rejected")
+	return s.UpdateStatus(id, "rejected", "")
 }
 
 // BulkUpdateStatus updates status for multiple tickets
-func (s *TicketService) BulkUpdateStatus(ids []uint, status string) ([]models.Ticket, error) {
+func (s *TicketService) BulkUpdateStatus(ids []uint, status string, reason string) ([]models.Ticket, error) {
 	var updatedTickets []models.Ticket
 	var errors []string
 
 	for _, id := range ids {
-		ticket, err := s.UpdateStatus(id, status)
+		ticket, err := s.UpdateStatus(id, status, reason)
 		if err != nil {
 			errors = append(errors, fmt.Sprintf("Failed to update ticket %d: %s", id, err.Error()))
 		} else {

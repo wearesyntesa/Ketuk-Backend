@@ -45,7 +45,7 @@ func (s *EnhancedTicketService) CreateFromRequest(ctx context.Context, req model
 }
 
 // UpdateStatusWithEvents updates ticket status and logs events
-func (s *EnhancedTicketService) UpdateStatusWithEvents(ctx context.Context, id uint, status string) (*models.Ticket, error) {
+func (s *EnhancedTicketService) UpdateStatusWithEvents(ctx context.Context, id uint, status string, reason string) (*models.Ticket, error) {
 	// Get current ticket for comparison
 	currentTicket, err := s.TicketService.GetByID(id)
 	if err != nil {
@@ -53,7 +53,7 @@ func (s *EnhancedTicketService) UpdateStatusWithEvents(ctx context.Context, id u
 	}
 
 	// Update status using base service
-	ticket, err := s.TicketService.UpdateStatus(id, status)
+	ticket, err := s.TicketService.UpdateStatus(id, status, reason)
 	if err != nil {
 		return nil, err
 	}
@@ -178,11 +178,11 @@ func (s *EnhancedTicketService) BatchProcessTickets(ctx context.Context, ticketI
 	for _, ticketID := range ticketIDs {
 		switch action {
 		case "accept":
-			if _, err := s.UpdateStatusWithEvents(ctx, ticketID, "accepted"); err != nil {
+			if _, err := s.UpdateStatusWithEvents(ctx, ticketID, "accepted", ""); err != nil {
 				log.Printf("Failed to accept ticket %d: %v", ticketID, err)
 			}
 		case "reject":
-			if _, err := s.UpdateStatusWithEvents(ctx, ticketID, "rejected"); err != nil {
+			if _, err := s.UpdateStatusWithEvents(ctx, ticketID, "rejected", ""); err != nil {
 				log.Printf("Failed to reject ticket %d: %v", ticketID, err)
 			}
 		}

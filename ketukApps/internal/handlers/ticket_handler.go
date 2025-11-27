@@ -339,7 +339,7 @@ func (h *TicketHandler) UpdateTicketStatus(c *gin.Context) {
 		return
 	}
 
-	ticket, err := h.ticketService.UpdateStatus(id, req.Status)
+	ticket, err := h.ticketService.UpdateStatus(id, req.Status, req.Reason)
 	if err != nil {
 		status := http.StatusBadRequest
 		if err.Error() == "ticket not found" {
@@ -487,7 +487,7 @@ func (h *TicketHandler) BulkUpdateStatus(c *gin.Context) {
 		uintIDs[i] = uint(id)
 	}
 
-	tickets, err := h.ticketService.BulkUpdateStatus(uintIDs, req.Status)
+	tickets, err := h.ticketService.BulkUpdateStatus(uintIDs, req.Status, req.Reason)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -571,9 +571,11 @@ func (h *TicketHandler) GetStatistics(c *gin.Context) {
 // Request structs for the handlers
 type UpdateStatusRequest struct {
 	Status string `json:"status" binding:"required"`
+	Reason string `json:"reason,omitempty"`
 }
 
 type BulkUpdateStatusRequest struct {
 	IDs    []int  `json:"ids" binding:"required"`
 	Status string `json:"status" binding:"required"`
+	Reason string `json:"reason,omitempty"`
 }

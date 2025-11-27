@@ -28,4 +28,7 @@ psql -h postgres -U user -d mydb < /migrations/000005_add_schedule_id_to_tickets
 echo "Running migration 000006_add_password_to_users.up.sql..."
 psql -h postgres -U user -d mydb < /migrations/000006_add_password_to_users.up.sql
 
+echo "Running migration 000007_adding_reason_in_ticket.up.sql..."
+psql -h postgres -U user -d mydb < /migrations/000007_adding_reason_in_ticket.up.sql
+
 echo "All migrations completed successfully!"
