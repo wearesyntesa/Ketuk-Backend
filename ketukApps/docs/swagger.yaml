@@ -6,6 +6,8 @@ definitions:
         items:
           type: integer
         type: array
+      reason:
+        type: string
       status:
         type: string
     required:
@@ -54,6 +56,8 @@ definitions:
     type: object
   handlers.UpdateStatusRequest:
     properties:
+      reason:
+        type: string
       status:
         type: string
     required:
@@ -185,6 +189,58 @@ definitions:
     required:
     - refresh_token
     type: object
+  models.SemesterCategory:
+    enum:
+    - Ganjil
+    - Genap
+    type: string
+    x-enum-varnames:
+    - SemesterGanjil
+    - SemesterGenap
+  models.Unblocking:
+    properties:
+      createdAt:
+        type: string
+      endDate:
+        type: string
+      id:
+        type: integer
+      semester:
+        $ref: '#/definitions/models.SemesterCategory'
+      startDate:
+        type: string
+      tahun:
+        type: integer
+      user:
+        $ref: '#/definitions/models.User'
+      userId:
+        type: integer
+    type: object
+  models.UnblockingResponse:
+    description: Unblocking response format
+    properties:
+      message:
+        example: Unblocking operation completed successfully
+        type: string
+      success:
+        example: true
+        type: boolean
+      unblocking:
+        $ref: '#/definitions/models.Unblocking'
+    type: object
+  models.UnblockingsResponse:
+    properties:
+      message:
+        example: Unblocking operation completed successfully
+        type: string
+      success:
+        example: true
+        type: boolean
+      unblockings:
+        items:
+          $ref: '#/definitions/models.Unblocking'
+        type: array
+    type: object
   models.UpdateTicketRequest:
     description: Request body for updating a ticket
     properties:
@@ -224,9 +280,6 @@ definitions:
       name:
         example: John Doe
         type: string
-      profile_pic:
-        example: https://example.com/avatar.jpg
-        type: string
       role:
         example: user
         type: string
@@ -250,6 +303,71 @@ info:
   title: KetukApps API
   version: "1.0"
 paths:
+  /api/auth/v1/google/callback:
+    get:
+      description: Handle callback from Google OAuth and authenticate user
+      parameters:
+      - description: Authorization code from Google
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: State for CSRF protection
+        in: query
+        name: state
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.LoginResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      summary: Google OAuth callback
+      tags:
+      - auth
+  /api/auth/v1/google/login:
+    get:
+      description: Redirects user to Google OAuth consent screen
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      summary: Initiate Google OAuth login
+      tags:
+      - auth
   /api/auth/v1/login:
     post:
       consumes:
@@ -389,6 +507,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get all item categories
       tags:
       - item-categories
@@ -414,6 +534,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Create a new item category
       tags:
       - item-categories
@@ -441,6 +563,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Delete item category
       tags:
       - item-categories
@@ -467,6 +591,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get item category by ID
       tags:
       - item-categories
@@ -502,6 +628,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Update item category
       tags:
       - item-categories
@@ -515,6 +643,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get all items
       tags:
       - items
@@ -540,6 +670,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Create a new item
       tags:
       - items
@@ -567,6 +699,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Delete item
       tags:
       - items
@@ -593,6 +727,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get item by ID
       tags:
       - items
@@ -628,6 +764,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Update item
       tags:
       - items
@@ -651,6 +789,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get items by category ID
       tags:
       - items
@@ -664,6 +804,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get all tickets
       tags:
       - tickets
@@ -689,6 +831,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Create a new ticket
       tags:
       - tickets
@@ -716,6 +860,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Delete ticket
       tags:
       - tickets
@@ -742,6 +888,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get ticket by ID
       tags:
       - tickets
@@ -776,6 +924,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Update ticket
       tags:
       - tickets
@@ -811,6 +961,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Update ticket status
       tags:
       - tickets
@@ -837,9 +989,119 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Bulk update ticket status
       tags:
       - tickets
+  /api/unblockings/v1:
+    get:
+      description: Get a list of all unblocking requests
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UnblockingsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all unblocking requests
+      tags:
+      - unblocking
+    post:
+      consumes:
+      - application/json
+      description: Create a new unblocking request
+      parameters:
+      - description: Unblocking data
+        in: body
+        name: unblocking
+        required: true
+        schema:
+          $ref: '#/definitions/models.Unblocking'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.UnblockingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new unblocking request
+      tags:
+      - unblocking
+  /api/unblockings/v1/{id}:
+    get:
+      description: Get an unblocking request by its ID
+      parameters:
+      - description: Unblocking ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UnblockingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get unblocking request by ID
+      tags:
+      - unblocking
+  /api/unblockings/v1/user/{user_id}:
+    get:
+      description: Get all unblocking requests for a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UnblockingsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get unblocking requests by user ID
+      tags:
+      - unblocking
   /api/users/v1:
     get:
       description: Get a list of all users
@@ -850,6 +1112,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get all users
       tags:
       - users
@@ -875,6 +1139,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Create a new user
       tags:
       - users
@@ -902,6 +1168,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Delete user
       tags:
       - users
@@ -928,6 +1196,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get user by ID
       tags:
       - users
@@ -962,6 +1232,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Update user
       tags:
       - users
@@ -981,4 +1253,10 @@ paths:
 schemes:
 - http
 - https
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -23,6 +23,113 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/auth/v1/google/callback": {
+            "get": {
+                "description": "Handle callback from Google OAuth and authenticate user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Google OAuth callback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization code from Google",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "State for CSRF protection",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handlers.LoginResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/v1/google/login": {
+            "get": {
+                "description": "Redirects user to Google OAuth consent screen",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Initiate Google OAuth login",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/v1/login": {
             "post": {
                 "description": "Authenticate user and return JWT token",
@@ -242,6 +349,11 @@ const docTemplate = `{
         },
         "/api/item-categories/v1": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a list of all item categories",
                 "produces": [
                     "application/json"
@@ -260,6 +372,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new item category",
                 "consumes": [
                     "application/json"
@@ -300,6 +417,11 @@ const docTemplate = `{
         },
         "/api/item-categories/v1/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get an item category by its ID",
                 "produces": [
                     "application/json"
@@ -339,6 +461,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update item category information by ID",
                 "consumes": [
                     "application/json"
@@ -391,6 +518,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete an item category by ID",
                 "produces": [
                     "application/json"
@@ -432,6 +564,11 @@ const docTemplate = `{
         },
         "/api/items/v1": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a list of all items",
                 "produces": [
                     "application/json"
@@ -450,6 +587,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new item",
                 "consumes": [
                     "application/json"
@@ -490,6 +632,11 @@ const docTemplate = `{
         },
         "/api/items/v1/category/{category_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all items for a specific category",
                 "produces": [
                     "application/json"
@@ -525,6 +672,11 @@ const docTemplate = `{
         },
         "/api/items/v1/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get an item by its ID",
                 "produces": [
                     "application/json"
@@ -564,6 +716,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update item information by ID",
                 "consumes": [
                     "application/json"
@@ -616,6 +773,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete an item by ID",
                 "produces": [
                     "application/json"
@@ -657,6 +819,11 @@ const docTemplate = `{
         },
         "/api/tickets/v1": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a list of all tickets",
                 "produces": [
                     "application/json"
@@ -675,6 +842,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new ticket for a user",
                 "consumes": [
                     "application/json"
@@ -715,6 +887,11 @@ const docTemplate = `{
         },
         "/api/tickets/v1/bulk-status": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update status for multiple tickets",
                 "consumes": [
                     "application/json"
@@ -755,6 +932,11 @@ const docTemplate = `{
         },
         "/api/tickets/v1/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a ticket by its ID",
                 "produces": [
                     "application/json"
@@ -794,6 +976,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update ticket information by ID",
                 "consumes": [
                     "application/json"
@@ -845,6 +1032,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete a ticket by ID",
                 "produces": [
                     "application/json"
@@ -886,6 +1078,11 @@ const docTemplate = `{
         },
         "/api/tickets/v1/{id}/status": {
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update the status of a ticket",
                 "consumes": [
                     "application/json"
@@ -937,8 +1134,185 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/unblockings/v1": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a list of all unblocking requests",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "unblocking"
+                ],
+                "summary": "Get all unblocking requests",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UnblockingsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new unblocking request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "unblocking"
+                ],
+                "summary": "Create a new unblocking request",
+                "parameters": [
+                    {
+                        "description": "Unblocking data",
+                        "name": "unblocking",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Unblocking"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.UnblockingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/unblockings/v1/user/{user_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all unblocking requests for a specific user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "unblocking"
+                ],
+                "summary": "Get unblocking requests by user ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UnblockingsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/unblockings/v1/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get an unblocking request by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "unblocking"
+                ],
+                "summary": "Get unblocking request by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Unblocking ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UnblockingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/v1": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a list of all users",
                 "produces": [
                     "application/json"
@@ -957,6 +1331,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new user with name and email",
                 "consumes": [
                     "application/json"
@@ -997,6 +1376,11 @@ const docTemplate = `{
         },
         "/api/users/v1/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a user by their ID",
                 "produces": [
                     "application/json"
@@ -1036,6 +1420,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update user information by ID",
                 "consumes": [
                     "application/json"
@@ -1087,6 +1476,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete a user by ID",
                 "produces": [
                     "application/json"
@@ -1161,6 +1555,9 @@ const docTemplate = `{
                         "type": "integer"
                     }
                 },
+                "reason": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "string"
                 }
@@ -1228,6 +1625,9 @@ const docTemplate = `{
                 "status"
             ],
             "properties": {
+                "reason": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "string"
                 }
@@ -1406,6 +1806,82 @@ const docTemplate = `{
                 }
             }
         },
+        "models.SemesterCategory": {
+            "type": "string",
+            "enum": [
+                "Ganjil",
+                "Genap"
+            ],
+            "x-enum-varnames": [
+                "SemesterGanjil",
+                "SemesterGenap"
+            ]
+        },
+        "models.Unblocking": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "semester": {
+                    "$ref": "#/definitions/models.SemesterCategory"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "tahun": {
+                    "type": "integer"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.UnblockingResponse": {
+            "description": "Unblocking response format",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Unblocking operation completed successfully"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "unblocking": {
+                    "$ref": "#/definitions/models.Unblocking"
+                }
+            }
+        },
+        "models.UnblockingsResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Unblocking operation completed successfully"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "unblockings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Unblocking"
+                    }
+                }
+            }
+        },
         "models.UpdateTicketRequest": {
             "description": "Request body for updating a ticket",
             "type": "object",
@@ -1463,10 +1939,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "John Doe"
                 },
-                "profile_pic": {
-                    "type": "string",
-                    "example": "https://example.com/avatar.jpg"
-                },
                 "role": {
                     "type": "string",
                     "example": "user"
@@ -1476,6 +1948,14 @@ const docTemplate = `{
                     "example": "2023-01-01T00:00:00Z"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

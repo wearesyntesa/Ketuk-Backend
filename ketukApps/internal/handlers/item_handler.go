@@ -25,6 +25,7 @@ func NewItemHandler(itemService *services.ItemService) *ItemHandler {
 // @Summary Get all item categories
 // @Description Get a list of all item categories
 // @Tags item-categories
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} models.APIResponse
 // @Router /api/item-categories/v1 [get]
@@ -49,6 +50,7 @@ func (h *ItemHandler) GetAllItemCategories(c *gin.Context) {
 // @Summary Get item category by ID
 // @Description Get an item category by its ID
 // @Tags item-categories
+// @Security BearerAuth
 // @Produce json
 // @Param id path int true "Category ID"
 // @Success 200 {object} models.APIResponse
@@ -87,6 +89,7 @@ func (h *ItemHandler) GetItemCategoryByID(c *gin.Context) {
 // @Summary Create a new item category
 // @Description Create a new item category
 // @Tags item-categories
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param category body models.ItemCategory true "Item category data"
@@ -125,6 +128,7 @@ func (h *ItemHandler) CreateItemCategory(c *gin.Context) {
 // @Summary Update item category
 // @Description Update item category information by ID
 // @Tags item-categories
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path int true "Category ID"
@@ -180,6 +184,7 @@ func (h *ItemHandler) UpdateItemCategory(c *gin.Context) {
 // @Summary Delete item category
 // @Description Delete an item category by ID
 // @Tags item-categories
+// @Security BearerAuth
 // @Produce json
 // @Param id path int true "Category ID"
 // @Success 200 {object} models.APIResponse
@@ -224,6 +229,7 @@ func (h *ItemHandler) DeleteItemCategory(c *gin.Context) {
 // @Summary Get all items
 // @Description Get a list of all items
 // @Tags items
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} models.APIResponse
 // @Router /api/items/v1 [get]
@@ -248,6 +254,7 @@ func (h *ItemHandler) GetAllItems(c *gin.Context) {
 // @Summary Get item by ID
 // @Description Get an item by its ID
 // @Tags items
+// @Security BearerAuth
 // @Produce json
 // @Param id path int true "Item ID"
 // @Success 200 {object} models.APIResponse
@@ -286,6 +293,7 @@ func (h *ItemHandler) GetItemByID(c *gin.Context) {
 // @Summary Get items by category ID
 // @Description Get all items for a specific category
 // @Tags items
+// @Security BearerAuth
 // @Produce json
 // @Param category_id path int true "Category ID"
 // @Success 200 {object} models.APIResponse
@@ -387,6 +395,7 @@ func (h *ItemHandler) GetItemsByKondisi(c *gin.Context) {
 // @Summary Create a new item
 // @Description Create a new item
 // @Tags items
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param item body models.Item true "Item data"
@@ -425,6 +434,7 @@ func (h *ItemHandler) CreateItem(c *gin.Context) {
 // @Summary Update item
 // @Description Update item information by ID
 // @Tags items
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path int true "Item ID"
@@ -480,6 +490,7 @@ func (h *ItemHandler) UpdateItem(c *gin.Context) {
 // @Summary Delete item
 // @Description Delete an item by ID
 // @Tags items
+// @Security BearerAuth
 // @Produce json
 // @Param id path int true "Item ID"
 // @Success 200 {object} models.APIResponse

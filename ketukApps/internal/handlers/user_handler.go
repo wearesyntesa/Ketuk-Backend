@@ -23,6 +23,7 @@ func NewUserHandler(userService *services.UserService) *UserHandler {
 // @Summary Get all users
 // @Description Get a list of all users
 // @Tags users
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} models.APIResponse
 // @Router /api/users/v1 [get]
@@ -47,6 +48,7 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 // @Summary Get user by ID
 // @Description Get a user by their ID
 // @Tags users
+// @Security BearerAuth
 // @Produce json
 // @Param id path int true "User ID"
 // @Success 200 {object} models.APIResponse
@@ -86,6 +88,7 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 // @Summary Create a new user
 // @Description Create a new user with name and email
 // @Tags users
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param user body models.CreateUserRequest true "User data"
@@ -131,6 +134,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 // @Summary Update user
 // @Description Update user information by ID
 // @Tags users
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path int true "User ID"
@@ -187,6 +191,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 // @Summary Delete user
 // @Description Delete a user by ID
 // @Tags users
+// @Security BearerAuth
 // @Produce json
 // @Param id path int true "User ID"
 // @Success 200 {object} models.APIResponse

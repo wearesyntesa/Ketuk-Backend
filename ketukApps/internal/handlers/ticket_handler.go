@@ -23,6 +23,7 @@ func NewTicketHandler(ticketService *services.TicketService) *TicketHandler {
 // @Summary Get all tickets
 // @Description Get a list of all tickets
 // @Tags tickets
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} models.APIResponse
 // @Router /api/tickets/v1 [get]
@@ -47,6 +48,7 @@ func (h *TicketHandler) GetAllTickets(c *gin.Context) {
 // @Summary Get ticket by ID
 // @Description Get a ticket by its ID
 // @Tags tickets
+// @Security BearerAuth
 // @Produce json
 // @Param id path int true "Ticket ID"
 // @Success 200 {object} models.APIResponse
@@ -214,6 +216,7 @@ func (h *TicketHandler) SearchTickets(c *gin.Context) {
 // @Summary Create a new ticket
 // @Description Create a new ticket for a user
 // @Tags tickets
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param ticket body models.CreateTicketRequest true "Ticket data"
@@ -252,6 +255,7 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 // @Summary Update ticket
 // @Description Update ticket information by ID
 // @Tags tickets
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path int true "Ticket ID"
@@ -308,6 +312,7 @@ func (h *TicketHandler) UpdateTicket(c *gin.Context) {
 // @Summary Update ticket status
 // @Description Update the status of a ticket
 // @Tags tickets
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path int true "Ticket ID"
@@ -454,6 +459,7 @@ func (h *TicketHandler) RejectTicket(c *gin.Context) {
 // @Summary Bulk update ticket status
 // @Description Update status for multiple tickets
 // @Tags tickets
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param request body BulkUpdateStatusRequest true "Bulk update request"
@@ -508,6 +514,7 @@ func (h *TicketHandler) BulkUpdateStatus(c *gin.Context) {
 // @Summary Delete ticket
 // @Description Delete a ticket by ID
 // @Tags tickets
+// @Security BearerAuth
 // @Produce json
 // @Param id path int true "Ticket ID"
 // @Success 200 {object} models.APIResponse
