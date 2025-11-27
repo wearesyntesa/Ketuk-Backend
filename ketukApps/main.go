@@ -59,6 +59,7 @@ func main() {
 	ticketService := services.NewTicketService(db)
 	scheduleService := services.NewScheduleService(db)
 	itemsService := services.NewItemService(db)
+	unblockingService := services.NewUnblockingService(db)
 	googleOAuthService := services.NewGoogleOAuthService(cfg)
 
 	// Start the worker with ticket service and schedule service
@@ -73,9 +74,10 @@ func main() {
 	userHandler := handlers.NewUserHandler(userService)
 	tickets := handlers.NewTicketHandler(ticketService)
 	items := handlers.NewItemHandler(itemsService)
+	unblockingHandler := handlers.NewUnblockingHandler(unblockingService)
 
 	// Setup Gin router
-	router := setupRouter(authHandler, userHandler, tickets, items)
+	router := setupRouter(authHandler, userHandler, tickets, items, unblockingHandler)
 
 	// Start server
 	address := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
@@ -87,7 +89,7 @@ func main() {
 	}
 }
 
-func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler) *gin.Engine {
+func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler, unblockingHandler *handlers.UnblockingHandler) *gin.Engine {
 	// Set Gin mode based on environment
 	gin.SetMode(gin.DebugMode) // Change to gin.DebugMode for development
 
@@ -176,6 +178,16 @@ func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHa
 				ItemsCategory.POST("/v1", middleware.RequireRole("admin"), itemHandler.CreateItemCategory)
 				ItemsCategory.PUT("/v1/:id", middleware.RequireRole("admin"), itemHandler.UpdateItemCategory)
 				ItemsCategory.DELETE("/v1/:id", middleware.RequireRole("admin"), itemHandler.DeleteItemCategory)
+			}
+
+			// Unblocking endpoints
+			unblocking := protected.Group("/unblockings")
+			{
+				// All authenticated users can view and create unblocking requests
+				unblocking.GET("/v1", middleware.RequireRole("admin"), unblockingHandler.GetAllUnblockings)
+				unblocking.GET("/v1/:id", middleware.RequireRole("admin"), unblockingHandler.GetUnblockingByID)
+				unblocking.GET("/v1/user/:user_id", middleware.RequireRole("admin"), unblockingHandler.GetUnblockingsByUserID)
+				unblocking.POST("/v1", middleware.RequireRole("admin"), unblockingHandler.CreateUnblocking)
 			}
 		}
 	}

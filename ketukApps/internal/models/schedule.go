@@ -62,3 +62,17 @@ func (Unblocking) TableName() string {
 func (ScheduleReguler) TableName() string {
 	return "schedule_reguler"
 }
+
+// UnblockingResponse represents a unblocking response
+// @Description Unblocking response format
+type UnblockingResponse struct {
+	Success    bool       `json:"success" example:"true"`
+	Message    string     `json:"message" example:"Unblocking operation completed successfully"`
+	Unblocking Unblocking `json:"unblocking,omitempty"`
+}
+
+type UnblockingsResponse struct {
+	Success     bool         `json:"success" example:"true"`
+	Message     string       `json:"message" example:"Unblocking operation completed successfully"`
+	Unblockings []Unblocking `json:"unblockings,omitempty"`
+}
