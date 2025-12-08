@@ -166,7 +166,7 @@ func (s *ItemService) CreateItem(item *models.Item) (*models.Item, error) {
 	}
 
 	// Reload with category data
-	s.db.Preload("Category").First(item, item.ID)
+	s.db.Preload("Category").First(item)
 	return item, nil
 }
 

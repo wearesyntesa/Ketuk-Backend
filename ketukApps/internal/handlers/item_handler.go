@@ -97,7 +97,7 @@ func (h *ItemHandler) GetItemCategoryByID(c *gin.Context) {
 // @Failure 400 {object} models.APIResponse
 // @Router /api/item-categories/v1 [post]
 func (h *ItemHandler) CreateItemCategory(c *gin.Context) {
-	var category models.ItemCategory
+	var category models.CreateItemCategoryRequest
 
 	if err := c.ShouldBindJSON(&category); err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
@@ -108,7 +108,12 @@ func (h *ItemHandler) CreateItemCategory(c *gin.Context) {
 		return
 	}
 
-	createdCategory, err := h.itemService.CreateItemCategory(&category)
+	data := models.ItemCategory{
+		CategoryName:  category.CategoryName,
+		Specification: category.Specification,
+	}
+
+	createdCategory, err := h.itemService.CreateItemCategory(&data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
@@ -403,7 +408,7 @@ func (h *ItemHandler) GetItemsByKondisi(c *gin.Context) {
 // @Failure 400 {object} models.APIResponse
 // @Router /api/items/v1 [post]
 func (h *ItemHandler) CreateItem(c *gin.Context) {
-	var item models.Item
+	var item models.CreateItemRequest
 
 	if err := c.ShouldBindJSON(&item); err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
@@ -414,7 +419,15 @@ func (h *ItemHandler) CreateItem(c *gin.Context) {
 		return
 	}
 
-	createdItem, err := h.itemService.CreateItem(&item)
+	itemCreate := models.Item{
+		Name:       item.Name,
+		Year:       item.Year,
+		Kondisi:    item.Kondisi,
+		Note:       item.Note,
+		CategoryID: item.CategoryID,
+	}
+
+	createdItem, err := h.itemService.CreateItem(&itemCreate)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,

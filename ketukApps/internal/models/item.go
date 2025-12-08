@@ -8,7 +8,7 @@ type ItemCategory struct {
 	ID            int       `json:"id" gorm:"primaryKey;column:id" example:"1"`
 	CategoryName  string    `json:"categoryName" gorm:"column:category_name;size:255;not null" example:"Komputer"`
 	Specification string    `json:"specification" gorm:"column:specification;type:text" example:"Komputer Desktop Intel Core i5"`
-	Quantity      int       `json:"quantity" gorm:"column:quantity;default:0" example:"10"`
+	Quantity      int       `json:"quantity,omitempty" gorm:"column:quantity;default:0" example:"10"`
 	CreatedAt     time.Time `json:"createdAt" gorm:"column:created_at;autoCreateTime" example:"2023-01-01T00:00:00Z"`
 	UpdatedAt     time.Time `json:"updatedAt" gorm:"column:updated_at;autoUpdateTime" example:"2023-01-01T00:00:00Z"`
 	Items         []Item    `json:"items,omitempty" gorm:"foreignKey:CategoryID"`
@@ -36,4 +36,29 @@ func (ItemCategory) TableName() string {
 // TableName overrides the table name for Item
 func (Item) TableName() string {
 	return "items"
+}
+
+type CreateItemRequest struct {
+	Name       string `json:"name" gorm:"column:name;size:255;not null" example:"PC-001"`
+	Year       *int   `json:"year,omitempty" gorm:"column:year" example:"2023"`
+	Kondisi    string `json:"kondisi" gorm:"column:kondisi;size:100" example:"Baik"`
+	Note       string `json:"note" gorm:"column:note;type:text" example:"Kondisi normal, ready to use"`
+	CategoryID int    `json:"categoryId" gorm:"column:category_id;not null" example:"1"`
+}
+
+type CreateItemResponse struct {
+	Success bool   `json:"success" example:"true"`
+	Message string `json:"message" example:"Item created successfully"`
+	Item    Item   `json:"item"`
+}
+
+type CreateItemCategoryRequest struct {
+	CategoryName  string `json:"categoryName" gorm:"column:category_name;size:255;not null" example:"Komputer"`
+	Specification string `json:"specification" gorm:"column:specification;type:text" example:"Komputer Desktop Intel Core i5"`
+}
+
+type CreateItemCategoryResponse struct {
+	Success  bool         `json:"success" example:"true"`
+	Message  string       `json:"message" example:"Item category created successfully"`
+	Category ItemCategory `json:"category"`
 }
