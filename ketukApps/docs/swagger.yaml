@@ -121,6 +121,34 @@ definitions:
     - title
     - userId
     type: object
+  models.CreateUnblockingRequest:
+    properties:
+      endDate:
+        example: "2023-12-31T00:00:00Z"
+        type: string
+      semester:
+        allOf:
+        - $ref: '#/definitions/models.SemesterCategory'
+        enum:
+        - Ganjil
+        - Genap
+        example: Ganjil
+      startDate:
+        example: "2023-09-01T00:00:00Z"
+        type: string
+      tahun:
+        example: 2023
+        type: integer
+      userId:
+        example: 1
+        type: integer
+    required:
+    - endDate
+    - semester
+    - startDate
+    - tahun
+    - userId
+    type: object
   models.CreateUserRequest:
     description: Request body for creating a new user
     properties:
@@ -1081,7 +1109,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UnblockingsResponse'
+            allOf:
+            - $ref: '#/definitions/models.UnblockingsResponse'
+            - properties:
+                unblockings:
+                  items:
+                    $ref: '#/definitions/models.Unblocking'
+                  type: array
+              type: object
         "500":
           description: Internal Server Error
           schema:
@@ -1094,21 +1129,26 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new unblocking request
+      description: Create a new unblocking request for semester unblocking
       parameters:
       - description: Unblocking data
         in: body
         name: unblocking
         required: true
         schema:
-          $ref: '#/definitions/models.Unblocking'
+          $ref: '#/definitions/models.CreateUnblockingRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.UnblockingResponse'
+            allOf:
+            - $ref: '#/definitions/models.UnblockingResponse'
+            - properties:
+                unblocking:
+                  $ref: '#/definitions/models.Unblocking'
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -1137,9 +1177,18 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UnblockingResponse'
+            allOf:
+            - $ref: '#/definitions/models.UnblockingResponse'
+            - properties:
+                unblocking:
+                  $ref: '#/definitions/models.Unblocking'
+              type: object
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/models.APIResponse'
         "500":
@@ -1166,7 +1215,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UnblockingsResponse'
+            allOf:
+            - $ref: '#/definitions/models.UnblockingsResponse'
+            - properties:
+                unblockings:
+                  items:
+                    $ref: '#/definitions/models.Unblocking'
+                  type: array
+              type: object
         "400":
           description: Bad Request
           schema:

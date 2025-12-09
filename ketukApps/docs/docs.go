@@ -1270,7 +1270,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UnblockingsResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.UnblockingsResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "unblockings": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.Unblocking"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -1287,7 +1302,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new unblocking request",
+                "description": "Create a new unblocking request for semester unblocking",
                 "consumes": [
                     "application/json"
                 ],
@@ -1305,7 +1320,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Unblocking"
+                            "$ref": "#/definitions/models.CreateUnblockingRequest"
                         }
                     }
                 ],
@@ -1313,7 +1328,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.UnblockingResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.UnblockingResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "unblocking": {
+                                            "$ref": "#/definitions/models.Unblocking"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -1359,7 +1386,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UnblockingsResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.UnblockingsResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "unblockings": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.Unblocking"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -1405,11 +1447,29 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UnblockingResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.UnblockingResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "unblocking": {
+                                            "$ref": "#/definitions/models.Unblocking"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/models.APIResponse"
                         }
@@ -1823,6 +1883,46 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "Room Booking Request"
+                },
+                "userId": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "models.CreateUnblockingRequest": {
+            "type": "object",
+            "required": [
+                "endDate",
+                "semester",
+                "startDate",
+                "tahun",
+                "userId"
+            ],
+            "properties": {
+                "endDate": {
+                    "type": "string",
+                    "example": "2023-12-31T00:00:00Z"
+                },
+                "semester": {
+                    "enum": [
+                        "Ganjil",
+                        "Genap"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.SemesterCategory"
+                        }
+                    ],
+                    "example": "Ganjil"
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2023-09-01T00:00:00Z"
+                },
+                "tahun": {
+                    "type": "integer",
+                    "example": 2023
                 },
                 "userId": {
                     "type": "integer",

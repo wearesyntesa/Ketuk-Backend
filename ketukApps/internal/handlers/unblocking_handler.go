@@ -22,24 +22,33 @@ func NewUnblockingHandler(unblockingService *services.UnblockingService) *Unbloc
 
 // CreateUnblocking godoc
 // @Summary Create a new unblocking request
-// @Description Create a new unblocking request
+// @Description Create a new unblocking request for semester unblocking
 // @Tags unblocking
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param unblocking body models.Unblocking true "Unblocking data"
-// @Success 201 {object} models.UnblockingResponse
+// @Param unblocking body models.CreateUnblockingRequest true "Unblocking data"
+// @Success 201 {object} models.UnblockingResponse{unblocking=models.Unblocking}
 // @Failure 400 {object} models.APIResponse
 // @Failure 500 {object} models.APIResponse
 // @Router /api/unblockings/v1 [post]
 func (h *UnblockingHandler) CreateUnblocking(c *gin.Context) {
-	var req models.Unblocking
+	var req models.CreateUnblockingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	unblocking, err := h.unblockingService.Create(&req)
+	unblockingData := models.Unblocking{
+		Tahun:     req.Tahun,
+		Semester:  req.Semester,
+		StartDate: req.StartDate,
+		EndDate:   req.EndDate,
+		UserID:    req.UserID,
+	}
+
+
+	unblocking, err := h.unblockingService.Create(&unblockingData)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -59,8 +68,9 @@ func (h *UnblockingHandler) CreateUnblocking(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Unblocking ID"
-// @Success 200 {object} models.UnblockingResponse
+// @Success 200 {object} models.UnblockingResponse{unblocking=models.Unblocking}
 // @Failure 400 {object} models.APIResponse
+// @Failure 404 {object} models.APIResponse
 // @Failure 500 {object} models.APIResponse
 // @Router /api/unblockings/v1/{id} [get]
 func (h *UnblockingHandler) GetUnblockingByID(c *gin.Context) {
@@ -91,7 +101,7 @@ func (h *UnblockingHandler) GetUnblockingByID(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param user_id path int true "User ID"
-// @Success 200 {object} models.UnblockingsResponse
+// @Success 200 {object} models.UnblockingsResponse{unblockings=[]models.Unblocking}
 // @Failure 400 {object} models.APIResponse
 // @Failure 500 {object} models.APIResponse
 // @Router /api/unblockings/v1/user/{user_id} [get]
@@ -122,7 +132,7 @@ func (h *UnblockingHandler) GetUnblockingsByUserID(c *gin.Context) {
 // @Tags unblocking
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} models.UnblockingsResponse
+// @Success 200 {object} models.UnblockingsResponse{unblockings=[]models.Unblocking}
 // @Failure 500 {object} models.APIResponse
 // @Router /api/unblockings/v1 [get]
 func (h *UnblockingHandler) GetAllUnblockings(c *gin.Context) {
