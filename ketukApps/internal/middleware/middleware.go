@@ -9,6 +9,7 @@ import (
 
 	"ketukApps/internal/database"
 	"ketukApps/internal/models"
+	"ketukApps/internal/scheduler"
 	"ketukApps/internal/utils"
 
 	"github.com/gin-gonic/gin"
@@ -227,6 +228,23 @@ func IsOwnerOrAdmin(userIDParam string) gin.HandlerFunc {
 				Success: false,
 				Message: "Forbidden",
 				Error:   "You can only access your own resources",
+			})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
+// Check State of unblock In current system
+func CheckUnblockState() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if !scheduler.IsUnblockEnabled() {
+			c.JSON(http.StatusForbidden, models.APIResponse{
+				Success: false,
+				Message: "This feature is currently disabled",
+				Error:   "Please contact the administrator",
 			})
 			c.Abort()
 			return

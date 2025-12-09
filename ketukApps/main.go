@@ -14,6 +14,7 @@ import (
 	"ketukApps/internal/handlers"
 	"ketukApps/internal/middleware"
 	"ketukApps/internal/queue"
+	"ketukApps/internal/scheduler"
 	"ketukApps/internal/services"
 	"ketukApps/internal/utils"
 )
@@ -84,6 +85,19 @@ func main() {
 	// Setup Gin router
 	router := setupRouter(authHandler, userHandler, tickets, items, unblockingHandler)
 
+	// Setup Scheduler
+
+	scheduler, err := scheduler.NewScheduler(db)
+	if err != nil {
+		log.Fatalf("Failed to create scheduler: %v", err)
+	}
+	defer scheduler.Shutdown()
+	// Register unblock job
+	if err := scheduler.RegisterUnblockJob(); err != nil {
+		log.Fatalf("Failed to register unblock job: %v", err)
+	}
+	scheduler.Start()
+
 	// Start server
 	address := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 	log.Printf("🚀 Server starting on http://%s", address)
@@ -147,15 +161,15 @@ func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHa
 			tickets := protected.Group("/tickets")
 			{
 				// All authenticated users can view and create tickets
-				tickets.GET("/v1", middleware.RequireRole("admin", "user"), ticketHandler.GetAllTickets)
-				tickets.GET("/v1/:id", middleware.RequireRole("admin", "user"), ticketHandler.GetTicketByID)
-				tickets.POST("/v1", middleware.RequireRole("admin", "user"), ticketHandler.CreateTicket)
+				tickets.GET("/v1", middleware.RequireRole("admin", "user"), middleware.CheckUnblockState(), ticketHandler.GetAllTickets)
+				tickets.GET("/v1/:id", middleware.RequireRole("admin", "user"), middleware.CheckUnblockState(), ticketHandler.GetTicketByID)
+				tickets.POST("/v1", middleware.RequireRole("admin", "user"), middleware.CheckUnblockState(), ticketHandler.CreateTicket)
 
 				// Only admin can update, delete, and change status
-				tickets.PUT("/v1/:id", middleware.RequireRole("admin"), ticketHandler.UpdateTicket)
-				tickets.DELETE("/v1/:id", middleware.RequireRole("admin"), ticketHandler.DeleteTicket)
-				tickets.PATCH("/v1/:id/status", middleware.RequireRole("admin"), ticketHandler.UpdateTicketStatus)
-				tickets.POST("/v1/bulk-status", middleware.RequireRole("admin"), ticketHandler.BulkUpdateStatus)
+				tickets.PUT("/v1/:id", middleware.RequireRole("admin"), middleware.CheckUnblockState(), ticketHandler.UpdateTicket)
+				tickets.DELETE("/v1/:id", middleware.RequireRole("admin"), middleware.CheckUnblockState(), ticketHandler.DeleteTicket)
+				tickets.PATCH("/v1/:id/status", middleware.RequireRole("admin"), middleware.CheckUnblockState(), ticketHandler.UpdateTicketStatus)
+				tickets.POST("/v1/bulk-status", middleware.RequireRole("admin"), middleware.CheckUnblockState(), ticketHandler.BulkUpdateStatus)
 			}
 
 			// Items endpoints

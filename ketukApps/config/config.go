@@ -17,6 +17,7 @@ type Config struct {
 	Google    GoogleOAuthConfig
 	WorkOS    WorkOSConfig
 	Queue     QueueConfig
+	Schedule  ScheduleConfig
 }
 
 type GoogleOAuthConfig struct {
@@ -73,6 +74,10 @@ type QueuesConfig struct {
 	DeadLetters    string
 }
 
+type ScheduleConfig struct {
+	UnblockCron string
+}
+
 func Load() *Config {
 	// Load .env file if it exists
 	if err := godotenv.Load(); err != nil {
@@ -83,7 +88,7 @@ func Load() *Config {
 		Port:      getEnv("PORT", "8080"),
 		Host:      getEnv("HOST", "localhost"),
 		LogLevel:  getEnv("LOG_LEVEL", "info"),
-		JWTSecret: getEnv("JWT_SECRET", "your-secret-key-change-this-in-production"),
+		JWTSecret: getEnv("JWT_SECRET", "keynyaadadiijasahjokowi"),
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
 			Port:     getEnv("DB_PORT", "5432"),
@@ -124,6 +129,9 @@ func Load() *Config {
 				Emails:         getEnv("QUEUE_EMAILS", "emails"),
 				DeadLetters:    getEnv("QUEUE_DEAD_LETTERS", "dead.letters"),
 			},
+		},
+		Schedule: ScheduleConfig{
+			UnblockCron: getEnv("CRON_SCHEDULE_UNBLOCK_JOBS", "*/1 * * * *"),
 		},
 	}
 }

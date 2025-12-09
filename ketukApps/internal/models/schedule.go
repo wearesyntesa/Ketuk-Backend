@@ -76,3 +76,11 @@ type UnblockingsResponse struct {
 	Message     string       `json:"message" example:"Unblocking operation completed successfully"`
 	Unblockings []Unblocking `json:"unblockings,omitempty"`
 }
+
+type CreateUnblockingRequest struct {
+	Tahun    int              `json:"tahun" binding:"required" example:"2023"`
+	Semester SemesterCategory `json:"semester" binding:"required,oneof=Ganjil Genap" example:"Ganjil"`
+	StartDate time.Time      `json:"startDate" binding:"required" example:"2023-09-01T00:00:00Z"`
+	EndDate   time.Time      `json:"endDate" binding:"required" example:"2023-12-31T00:00:00Z"`
+	UserID    int            `json:"userId" binding:"required" example:"1"`
+}

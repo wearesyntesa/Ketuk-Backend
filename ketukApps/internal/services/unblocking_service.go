@@ -42,3 +42,16 @@ func (s *UnblockingService) GetAll() ([]models.Unblocking, error) {
 	result := s.db.Preload("User").Find(&unblockings)
 	return unblockings, result.Error
 }
+
+// Delete an unblocking request by its ID
+func (s *UnblockingService) Delete(id int) error {
+	result := s.db.Delete(&models.Unblocking{}, id)
+	return result.Error
+}
+
+// Get unblocked schedules that are due for unblocking
+func (s *UnblockingService) GetDueUnblockings() ([]models.Unblocking, error) {
+	var unblockings []models.Unblocking
+	result := s.db.Where("scheduled_at <= NOW()").Find(&unblockings)
+	return unblockings, result.Error
+}
