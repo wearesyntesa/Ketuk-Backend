@@ -77,6 +77,33 @@ definitions:
         example: true
         type: boolean
     type: object
+  models.CreateItemCategoryRequest:
+    properties:
+      categoryName:
+        example: Komputer
+        type: string
+      specification:
+        example: Komputer Desktop Intel Core i5
+        type: string
+    type: object
+  models.CreateItemRequest:
+    properties:
+      categoryId:
+        example: 1
+        type: integer
+      kondisi:
+        example: Baik
+        type: string
+      name:
+        example: PC-001
+        type: string
+      note:
+        example: Kondisi normal, ready to use
+        type: string
+      year:
+        example: 2023
+        type: integer
+    type: object
   models.CreateTicketRequest:
     description: Request body for creating a new ticket
     properties:
@@ -506,7 +533,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.APIResponse'
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.ItemCategory'
+                  type: array
+              type: object
       security:
       - BearerAuth: []
       summary: Get all item categories
@@ -522,14 +556,19 @@ paths:
         name: category
         required: true
         schema:
-          $ref: '#/definitions/models.ItemCategory'
+          $ref: '#/definitions/models.CreateItemCategoryRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.APIResponse'
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ItemCategory'
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -582,7 +621,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.APIResponse'
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ItemCategory'
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -599,14 +643,14 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update item category information by ID
+      description: Update item category information by ID. All fields are optional.
       parameters:
       - description: Category ID
         in: path
         name: id
         required: true
         type: integer
-      - description: Updated category data
+      - description: Updated category data (categoryName, specification)
         in: body
         name: updates
         required: true
@@ -619,7 +663,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.APIResponse'
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ItemCategory'
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -642,7 +691,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.APIResponse'
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Item'
+                  type: array
+              type: object
       security:
       - BearerAuth: []
       summary: Get all items
@@ -658,14 +714,19 @@ paths:
         name: item
         required: true
         schema:
-          $ref: '#/definitions/models.Item'
+          $ref: '#/definitions/models.CreateItemRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.APIResponse'
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Item'
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -718,7 +779,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.APIResponse'
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Item'
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -735,14 +801,14 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update item information by ID
+      description: Update item information by ID. All fields are optional.
       parameters:
       - description: Item ID
         in: path
         name: id
         required: true
         type: integer
-      - description: Updated item data
+      - description: Updated item data (name, year, kondisi, note, categoryId)
         in: body
         name: updates
         required: true
@@ -755,7 +821,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.APIResponse'
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Item'
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -784,7 +855,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.APIResponse'
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Item'
+                  type: array
+              type: object
         "400":
           description: Bad Request
           schema:

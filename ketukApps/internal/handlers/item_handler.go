@@ -27,7 +27,7 @@ func NewItemHandler(itemService *services.ItemService) *ItemHandler {
 // @Tags item-categories
 // @Security BearerAuth
 // @Produce json
-// @Success 200 {object} models.APIResponse
+// @Success 200 {object} models.APIResponse{data=[]models.ItemCategory}
 // @Router /api/item-categories/v1 [get]
 func (h *ItemHandler) GetAllItemCategories(c *gin.Context) {
 	categories, err := h.itemService.GetAllItemCategories()
@@ -53,7 +53,7 @@ func (h *ItemHandler) GetAllItemCategories(c *gin.Context) {
 // @Security BearerAuth
 // @Produce json
 // @Param id path int true "Category ID"
-// @Success 200 {object} models.APIResponse
+// @Success 200 {object} models.APIResponse{data=models.ItemCategory}
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
 // @Router /api/item-categories/v1/{id} [get]
@@ -92,8 +92,8 @@ func (h *ItemHandler) GetItemCategoryByID(c *gin.Context) {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param category body models.ItemCategory true "Item category data"
-// @Success 201 {object} models.APIResponse
+// @Param category body models.CreateItemCategoryRequest true "Item category data"
+// @Success 201 {object} models.APIResponse{data=models.ItemCategory}
 // @Failure 400 {object} models.APIResponse
 // @Router /api/item-categories/v1 [post]
 func (h *ItemHandler) CreateItemCategory(c *gin.Context) {
@@ -131,14 +131,14 @@ func (h *ItemHandler) CreateItemCategory(c *gin.Context) {
 }
 
 // @Summary Update item category
-// @Description Update item category information by ID
+// @Description Update item category information by ID. All fields are optional.
 // @Tags item-categories
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path int true "Category ID"
-// @Param updates body map[string]interface{} true "Updated category data"
-// @Success 200 {object} models.APIResponse
+// @Param updates body map[string]interface{} true "Updated category data (categoryName, specification)"
+// @Success 200 {object} models.APIResponse{data=models.ItemCategory}
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
 // @Router /api/item-categories/v1/{id} [put]
@@ -236,7 +236,7 @@ func (h *ItemHandler) DeleteItemCategory(c *gin.Context) {
 // @Tags items
 // @Security BearerAuth
 // @Produce json
-// @Success 200 {object} models.APIResponse
+// @Success 200 {object} models.APIResponse{data=[]models.Item}
 // @Router /api/items/v1 [get]
 func (h *ItemHandler) GetAllItems(c *gin.Context) {
 	items, err := h.itemService.GetAllItems()
@@ -262,7 +262,7 @@ func (h *ItemHandler) GetAllItems(c *gin.Context) {
 // @Security BearerAuth
 // @Produce json
 // @Param id path int true "Item ID"
-// @Success 200 {object} models.APIResponse
+// @Success 200 {object} models.APIResponse{data=models.Item}
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
 // @Router /api/items/v1/{id} [get]
@@ -301,7 +301,7 @@ func (h *ItemHandler) GetItemByID(c *gin.Context) {
 // @Security BearerAuth
 // @Produce json
 // @Param category_id path int true "Category ID"
-// @Success 200 {object} models.APIResponse
+// @Success 200 {object} models.APIResponse{data=[]models.Item}
 // @Failure 400 {object} models.APIResponse
 // @Router /api/items/v1/category/{category_id} [get]
 func (h *ItemHandler) GetItemsByCategoryID(c *gin.Context) {
@@ -403,8 +403,8 @@ func (h *ItemHandler) GetItemsByKondisi(c *gin.Context) {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param item body models.Item true "Item data"
-// @Success 201 {object} models.APIResponse
+// @Param item body models.CreateItemRequest true "Item data"
+// @Success 201 {object} models.APIResponse{data=models.Item}
 // @Failure 400 {object} models.APIResponse
 // @Router /api/items/v1 [post]
 func (h *ItemHandler) CreateItem(c *gin.Context) {
@@ -445,14 +445,14 @@ func (h *ItemHandler) CreateItem(c *gin.Context) {
 }
 
 // @Summary Update item
-// @Description Update item information by ID
+// @Description Update item information by ID. All fields are optional.
 // @Tags items
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path int true "Item ID"
-// @Param updates body map[string]interface{} true "Updated item data"
-// @Success 200 {object} models.APIResponse
+// @Param updates body map[string]interface{} true "Updated item data (name, year, kondisi, note, categoryId)"
+// @Success 200 {object} models.APIResponse{data=models.Item}
 // @Failure 400 {object} models.APIResponse
 // @Failure 404 {object} models.APIResponse
 // @Router /api/items/v1/{id} [put]

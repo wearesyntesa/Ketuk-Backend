@@ -366,7 +366,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.APIResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.ItemCategory"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -395,7 +410,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ItemCategory"
+                            "$ref": "#/definitions/models.CreateItemCategoryRequest"
                         }
                     }
                 ],
@@ -403,7 +418,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.APIResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.ItemCategory"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -443,7 +470,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.APIResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.ItemCategory"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -466,7 +505,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update item category information by ID",
+                "description": "Update item category information by ID. All fields are optional.",
                 "consumes": [
                     "application/json"
                 ],
@@ -486,7 +525,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Updated category data",
+                        "description": "Updated category data (categoryName, specification)",
                         "name": "updates",
                         "in": "body",
                         "required": true,
@@ -500,7 +539,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.APIResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.ItemCategory"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -581,7 +632,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.APIResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.Item"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -610,7 +676,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Item"
+                            "$ref": "#/definitions/models.CreateItemRequest"
                         }
                     }
                 ],
@@ -618,7 +684,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.APIResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.Item"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -658,7 +736,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.APIResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.Item"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -698,7 +791,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.APIResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.Item"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -721,7 +826,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update item information by ID",
+                "description": "Update item information by ID. All fields are optional.",
                 "consumes": [
                     "application/json"
                 ],
@@ -741,7 +846,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Updated item data",
+                        "description": "Updated item data (name, year, kondisi, note, categoryId)",
                         "name": "updates",
                         "in": "body",
                         "required": true,
@@ -755,7 +860,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.APIResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.Item"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -1649,6 +1766,44 @@ const docTemplate = `{
                 "success": {
                     "type": "boolean",
                     "example": true
+                }
+            }
+        },
+        "models.CreateItemCategoryRequest": {
+            "type": "object",
+            "properties": {
+                "categoryName": {
+                    "type": "string",
+                    "example": "Komputer"
+                },
+                "specification": {
+                    "type": "string",
+                    "example": "Komputer Desktop Intel Core i5"
+                }
+            }
+        },
+        "models.CreateItemRequest": {
+            "type": "object",
+            "properties": {
+                "categoryId": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "kondisi": {
+                    "type": "string",
+                    "example": "Baik"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "PC-001"
+                },
+                "note": {
+                    "type": "string",
+                    "example": "Kondisi normal, ready to use"
+                },
+                "year": {
+                    "type": "integer",
+                    "example": 2023
                 }
             }
         },
