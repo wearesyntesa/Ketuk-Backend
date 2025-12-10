@@ -104,6 +104,26 @@ definitions:
         example: 2023
         type: integer
     type: object
+  models.CreateScheduleRegulerRequest:
+    properties:
+      endDate:
+        example: "2023-12-01T17:00:00Z"
+        type: string
+      startDate:
+        example: "2023-12-01T09:00:00Z"
+        type: string
+      title:
+        example: Regular Maintenance Schedule
+        type: string
+      userId:
+        example: 1
+        type: integer
+    required:
+    - endDate
+    - startDate
+    - title
+    - userId
+    type: object
   models.CreateTicketRequest:
     description: Request body for creating a new ticket
     properties:
@@ -244,6 +264,23 @@ definitions:
     required:
     - refresh_token
     type: object
+  models.ScheduleReguler:
+    properties:
+      createdAt:
+        type: string
+      endDate:
+        type: string
+      idSchedule:
+        type: integer
+      startDate:
+        type: string
+      title:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      userId:
+        type: integer
+    type: object
   models.SemesterCategory:
     enum:
     - Ganjil
@@ -295,6 +332,18 @@ definitions:
         items:
           $ref: '#/definitions/models.Unblocking'
         type: array
+    type: object
+  models.UpdateScheduleRegulerRequest:
+    properties:
+      endDate:
+        example: "2023-12-01T17:00:00Z"
+        type: string
+      startDate:
+        example: "2023-12-01T09:00:00Z"
+        type: string
+      title:
+        example: Updated Schedule Title
+        type: string
     type: object
   models.UpdateTicketRequest:
     description: Request body for updating a ticket
@@ -900,6 +949,203 @@ paths:
       summary: Get items by category ID
       tags:
       - items
+  /api/schedules/reguler/v1:
+    get:
+      description: Get a list of all regular schedules
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.ScheduleReguler'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all regular schedules
+      tags:
+      - schedule-reguler
+    post:
+      consumes:
+      - application/json
+      description: Create a new regular schedule
+      parameters:
+      - description: Schedule data
+        in: body
+        name: schedule
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateScheduleRegulerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ScheduleReguler'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new regular schedule
+      tags:
+      - schedule-reguler
+  /api/schedules/reguler/v1/{id}:
+    delete:
+      description: Delete a regular schedule by ID
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete regular schedule
+      tags:
+      - schedule-reguler
+    get:
+      description: Get a regular schedule by its ID
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ScheduleReguler'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get regular schedule by ID
+      tags:
+      - schedule-reguler
+    put:
+      consumes:
+      - application/json
+      description: Update regular schedule information by ID. All fields are optional.
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated schedule data
+        in: body
+        name: updates
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateScheduleRegulerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ScheduleReguler'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update regular schedule
+      tags:
+      - schedule-reguler
+  /api/schedules/reguler/v1/user/{user_id}:
+    get:
+      description: Get all regular schedules for a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.ScheduleReguler'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get regular schedules by user ID
+      tags:
+      - schedule-reguler
   /api/tickets/v1:
     get:
       description: Get a list of all tickets

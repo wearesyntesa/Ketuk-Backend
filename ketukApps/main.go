@@ -81,9 +81,10 @@ func main() {
 	tickets := handlers.NewTicketHandler(ticketService)
 	items := handlers.NewItemHandler(itemsService)
 	unblockingHandler := handlers.NewUnblockingHandler(unblockingService)
+	scheduleHandler := handlers.NewScheduleHandler(scheduleService)
 
 	// Setup Gin router
-	router := setupRouter(authHandler, userHandler, tickets, items, unblockingHandler)
+	router := setupRouter(authHandler, userHandler, tickets, items, unblockingHandler, scheduleHandler)
 
 	// Setup Scheduler
 
@@ -108,7 +109,7 @@ func main() {
 	}
 }
 
-func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler, unblockingHandler *handlers.UnblockingHandler) *gin.Engine {
+func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler, unblockingHandler *handlers.UnblockingHandler, scheduleHandler *handlers.ScheduleHandler) *gin.Engine {
 	// Set Gin mode based on environment
 	gin.SetMode(gin.DebugMode) // Change to gin.DebugMode for development
 
@@ -207,6 +208,20 @@ func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHa
 				unblocking.GET("/v1/:id", middleware.RequireRole("admin"), unblockingHandler.GetUnblockingByID)
 				unblocking.GET("/v1/user/:user_id", middleware.RequireRole("admin"), unblockingHandler.GetUnblockingsByUserID)
 				unblocking.POST("/v1", middleware.RequireRole("admin"), unblockingHandler.CreateUnblocking)
+			}
+
+			// Schedule Reguler endpoints
+			scheduleReguler := protected.Group("/schedules/reguler")
+			{
+				// All authenticated users can view, admin can manage
+				scheduleReguler.GET("/v1", middleware.RequireRole("admin", "user"), scheduleHandler.GetAllScheduleReguler)
+				scheduleReguler.GET("/v1/:id", middleware.RequireRole("admin", "user"), scheduleHandler.GetScheduleRegulerByID)
+				scheduleReguler.GET("/v1/user/:user_id", middleware.RequireRole("admin", "user"), scheduleHandler.GetScheduleRegulerByUserID)
+
+				// Admin only
+				scheduleReguler.POST("/v1", middleware.RequireRole("admin"), scheduleHandler.CreateScheduleReguler)
+				scheduleReguler.PUT("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.UpdateScheduleReguler)
+				scheduleReguler.DELETE("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.DeleteScheduleReguler)
 			}
 		}
 	}
