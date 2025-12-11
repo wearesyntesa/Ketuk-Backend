@@ -393,6 +393,56 @@ definitions:
         example: 1
         type: integer
     type: object
+  models.TicketEventAction:
+    enum:
+    - created
+    - updated
+    - status_changed
+    - deleted
+    - assigned
+    - commented
+    - approved
+    - rejected
+    type: string
+    x-enum-varnames:
+    - EventCreated
+    - EventUpdated
+    - EventStatusChanged
+    - EventDeleted
+    - EventAssigned
+    - EventCommented
+    - EventApproved
+    - EventRejected
+  models.TicketEventLog:
+    description: Ticket event log for audit trail
+    properties:
+      action:
+        $ref: '#/definitions/models.TicketEventAction'
+      changes:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      ipAddress:
+        type: string
+      newValue:
+        type: string
+      notes:
+        type: string
+      oldValue:
+        type: string
+      ticket:
+        $ref: '#/definitions/models.Ticket'
+      ticketId:
+        type: integer
+      user:
+        $ref: '#/definitions/models.User'
+      userAgent:
+        type: string
+      userId:
+        type: integer
+    type: object
   models.TicketStatus:
     enum:
     - pending
@@ -540,6 +590,78 @@ info:
   title: KetukApps API
   version: "1.0"
 paths:
+  /api/audit/tickets/{ticket_id}/logs:
+    get:
+      description: Get all event logs for a specific ticket
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: ticket_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.TicketEventLog'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get ticket event logs
+      tags:
+      - audit
+  /api/audit/users/{user_id}/logs:
+    get:
+      description: Get all event logs created by a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.TicketEventLog'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get event logs by user
+      tags:
+      - audit
   /api/auth/v1/google/callback:
     get:
       description: Handle callback from Google OAuth and authenticate user

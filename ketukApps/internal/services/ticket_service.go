@@ -11,12 +11,14 @@ import (
 )
 
 type TicketService struct {
-	db *gorm.DB
+	db           *gorm.DB
+	auditService *AuditService
 }
 
 func NewTicketService(db *gorm.DB) *TicketService {
 	return &TicketService{
-		db: db,
+		db:           db,
+		auditService: NewAuditService(db),
 	}
 }
 
@@ -80,6 +82,21 @@ func (s *TicketService) Create(userID uint, title, description string) (*models.
 
 	// Reload with user data
 	s.db.Preload("User").First(&ticket, ticket.ID)
+
+	// Log audit trail
+	userIDInt := int(userID)
+	s.auditService.LogTicketEvent(
+		int(ticket.ID),
+		&userIDInt,
+		models.EventCreated,
+		nil,
+		ticket,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+
 	return &ticket, nil
 }
 
@@ -112,6 +129,21 @@ func (s *TicketService) CreateFromModel(ticket *models.Ticket) (*models.Ticket, 
 
 	// Reload with user data
 	s.db.Preload("User").First(ticket, ticket.ID)
+
+	// Log audit trail
+	userIDInt := int(ticket.UserID)
+	s.auditService.LogTicketEvent(
+		int(ticket.ID),
+		&userIDInt,
+		models.EventCreated,
+		nil,
+		ticket,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+
 	return ticket, nil
 }
 
@@ -140,6 +172,9 @@ func (s *TicketService) UpdateStatus(id uint, status, reason string) (*models.Ti
 		return nil, err
 	}
 
+	// Store old ticket state for audit
+	oldTicket := ticket
+
 	updates := map[string]interface{}{
 		"status": status,
 		"reason": reason,
@@ -158,6 +193,39 @@ func (s *TicketService) UpdateStatus(id uint, status, reason string) (*models.Ti
 
 	// Reload with updated data
 	s.db.Preload("User").First(&ticket, id)
+
+	// Log audit trail for status change
+	changes := map[string]interface{}{
+		"status": map[string]string{
+			"old": string(oldTicket.Status),
+			"new": string(ticket.Status),
+		},
+		"reason": map[string]string{
+			"old": oldTicket.Reason,
+			"new": ticket.Reason,
+		},
+	}
+
+	action := models.EventStatusChanged
+	if status == "accepted" {
+		action = models.EventApproved
+	} else if status == "rejected" {
+		action = models.EventRejected
+	}
+
+	userIDInt := int(ticket.UserID)
+	s.auditService.LogTicketEvent(
+		int(ticket.ID),
+		&userIDInt,
+		action,
+		oldTicket,
+		ticket,
+		changes,
+		nil,
+		nil,
+		nil,
+	)
+
 	return &ticket, nil
 }
 
@@ -170,6 +238,9 @@ func (s *TicketService) Update(id uint, title, description string) (*models.Tick
 		}
 		return nil, err
 	}
+
+	// Store old ticket state for audit
+	oldTicket := ticket
 
 	updates := make(map[string]interface{})
 	if title != "" {
@@ -188,6 +259,24 @@ func (s *TicketService) Update(id uint, title, description string) (*models.Tick
 
 	// Reload with updated data
 	s.db.Preload("User").First(&ticket, id)
+
+	// Log audit trail if there were changes
+	if len(updates) > 0 {
+		changes := s.auditService.CompareTickets(&oldTicket, &ticket)
+		userIDInt := int(ticket.UserID)
+		s.auditService.LogTicketEvent(
+			int(ticket.ID),
+			&userIDInt,
+			models.EventUpdated,
+			oldTicket,
+			ticket,
+			changes,
+			nil,
+			nil,
+			nil,
+		)
+	}
+
 	return &ticket, nil
 }
 
@@ -198,6 +287,29 @@ func (s *TicketService) UpdateFromRequest(id uint, req models.UpdateTicketReques
 
 // Delete removes a ticket
 func (s *TicketService) Delete(id uint) error {
+	// Get ticket before deletion for audit
+	var ticket models.Ticket
+	if err := s.db.First(&ticket, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("ticket not found")
+		}
+		return err
+	}
+
+	// Log audit trail before deletion
+	userIDInt := int(ticket.UserID)
+	s.auditService.LogTicketEvent(
+		int(ticket.ID),
+		&userIDInt,
+		models.EventDeleted,
+		ticket,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+
 	result := s.db.Delete(&models.Ticket{}, id)
 	if result.Error != nil {
 		return result.Error

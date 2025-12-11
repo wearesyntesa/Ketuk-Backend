@@ -23,6 +23,128 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/audit/tickets/{ticket_id}/logs": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all event logs for a specific ticket",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit"
+                ],
+                "summary": "Get ticket event logs",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ticket ID",
+                        "name": "ticket_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.TicketEventLog"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/audit/users/{user_id}/logs": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all event logs created by a specific user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit"
+                ],
+                "summary": "Get event logs by user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.TicketEventLog"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/v1/google/callback": {
             "get": {
                 "description": "Handle callback from Google OAuth and authenticate user",
@@ -2990,6 +3112,74 @@ const docTemplate = `{
                 "userId": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "models.TicketEventAction": {
+            "type": "string",
+            "enum": [
+                "created",
+                "updated",
+                "status_changed",
+                "deleted",
+                "assigned",
+                "commented",
+                "approved",
+                "rejected"
+            ],
+            "x-enum-varnames": [
+                "EventCreated",
+                "EventUpdated",
+                "EventStatusChanged",
+                "EventDeleted",
+                "EventAssigned",
+                "EventCommented",
+                "EventApproved",
+                "EventRejected"
+            ]
+        },
+        "models.TicketEventLog": {
+            "description": "Ticket event log for audit trail",
+            "type": "object",
+            "properties": {
+                "action": {
+                    "$ref": "#/definitions/models.TicketEventAction"
+                },
+                "changes": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ipAddress": {
+                    "type": "string"
+                },
+                "newValue": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "oldValue": {
+                    "type": "string"
+                },
+                "ticket": {
+                    "$ref": "#/definitions/models.Ticket"
+                },
+                "ticketId": {
+                    "type": "integer"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userAgent": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
                 }
             }
         },

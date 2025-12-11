@@ -67,6 +67,7 @@ func main() {
 	itemsService := services.NewItemService(db)
 	unblockingService := services.NewUnblockingService(db)
 	googleOAuthService := services.NewGoogleOAuthService(cfg)
+	auditService := services.NewAuditService(db)
 
 	// Start the worker with ticket service and schedule service
 	go func() {
@@ -82,9 +83,10 @@ func main() {
 	items := handlers.NewItemHandler(itemsService)
 	unblockingHandler := handlers.NewUnblockingHandler(unblockingService)
 	scheduleHandler := handlers.NewScheduleHandler(scheduleService)
+	auditHandler := handlers.NewAuditHandler(auditService)
 
 	// Setup Gin router
-	router := setupRouter(authHandler, userHandler, tickets, items, unblockingHandler, scheduleHandler)
+	router := setupRouter(authHandler, userHandler, tickets, items, unblockingHandler, scheduleHandler, auditHandler)
 
 	// Setup Scheduler
 
@@ -109,7 +111,7 @@ func main() {
 	}
 }
 
-func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler, unblockingHandler *handlers.UnblockingHandler, scheduleHandler *handlers.ScheduleHandler) *gin.Engine {
+func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler, unblockingHandler *handlers.UnblockingHandler, scheduleHandler *handlers.ScheduleHandler, auditHandler *handlers.AuditHandler) *gin.Engine {
 	// Set Gin mode based on environment
 	gin.SetMode(gin.DebugMode) // Change to gin.DebugMode for development
 
@@ -237,6 +239,14 @@ func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHa
 				scheduleTicket.POST("/v1", middleware.RequireRole("admin"), scheduleHandler.CreateScheduleTicket)
 				scheduleTicket.PUT("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.UpdateScheduleTicket)
 				scheduleTicket.DELETE("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.DeleteScheduleTicket)
+			}
+
+			// Audit endpoints
+			audit := protected.Group("/audit")
+			{
+				// Both users and admins can view audit logs
+				audit.GET("/tickets/:ticket_id/logs", middleware.RequireRole("admin", "user"), auditHandler.GetTicketEventLogs)
+				audit.GET("/users/:user_id/logs", middleware.RequireRole("admin"), auditHandler.GetEventLogsByUser)
 			}
 		}
 	}
