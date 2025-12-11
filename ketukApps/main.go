@@ -223,6 +223,21 @@ func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHa
 				scheduleReguler.PUT("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.UpdateScheduleReguler)
 				scheduleReguler.DELETE("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.DeleteScheduleReguler)
 			}
+
+			// Schedule Ticket endpoints
+			scheduleTicket := protected.Group("/schedules/tickets")
+			{
+				// All authenticated users can view, admin can manage
+				scheduleTicket.GET("/v1", middleware.RequireRole("admin", "user"), scheduleHandler.GetAllScheduleTickets)
+				scheduleTicket.GET("/v1/:id", middleware.RequireRole("admin", "user"), scheduleHandler.GetScheduleTicketByID)
+				scheduleTicket.GET("/v1/user/:user_id", middleware.RequireRole("admin", "user"), scheduleHandler.GetScheduleTicketsByUserID)
+				scheduleTicket.GET("/v1/category/:category", middleware.RequireRole("admin", "user"), scheduleHandler.GetScheduleTicketsByCategory)
+
+				// Admin only
+				scheduleTicket.POST("/v1", middleware.RequireRole("admin"), scheduleHandler.CreateScheduleTicket)
+				scheduleTicket.PUT("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.UpdateScheduleTicket)
+				scheduleTicket.DELETE("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.DeleteScheduleTicket)
+			}
 		}
 	}
 

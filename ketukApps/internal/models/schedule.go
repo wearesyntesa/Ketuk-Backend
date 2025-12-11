@@ -99,3 +99,22 @@ type UpdateScheduleRegulerRequest struct {
 	StartDate *time.Time `json:"startDate,omitempty" example:"2023-12-01T09:00:00Z"`
 	EndDate   *time.Time `json:"endDate,omitempty" example:"2023-12-01T17:00:00Z"`
 }
+
+// CreateScheduleTicketRequest represents request to create schedule ticket
+type CreateScheduleTicketRequest struct {
+	Title       string    `json:"title" binding:"required" example:"Network Maintenance"`
+	StartDate   time.Time `json:"startDate" binding:"required" example:"2023-12-01T09:00:00Z"`
+	EndDate     time.Time `json:"endDate" binding:"required" example:"2023-12-01T17:00:00Z"`
+	UserID      int       `json:"userId" binding:"required" example:"1"`
+	Kategori    Category  `json:"kategori" binding:"required" example:"barang"`
+	Description string    `json:"description" example:"Scheduled network maintenance"`
+}
+
+// UpdateScheduleTicketRequest represents request to update schedule ticket
+type UpdateScheduleTicketRequest struct {
+	Title       *string    `json:"title,omitempty" example:"Updated Schedule"`
+	StartDate   *time.Time `json:"startDate,omitempty" example:"2023-12-01T09:00:00Z"`
+	EndDate     *time.Time `json:"endDate,omitempty" example:"2023-12-01T17:00:00Z"`
+	Kategori    *Category  `json:"kategori,omitempty" example:"barang"`
+	Description *string    `json:"description,omitempty" example:"Updated description"`
+}

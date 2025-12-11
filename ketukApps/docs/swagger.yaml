@@ -77,6 +77,18 @@ definitions:
         example: true
         type: boolean
     type: object
+  models.Category:
+    enum:
+    - Kelas
+    - Lainnya
+    - Praktikum
+    - Skripsi
+    type: string
+    x-enum-varnames:
+    - Kelas
+    - Lainnya
+    - Praktikum
+    - Skripsi
   models.CreateItemCategoryRequest:
     properties:
       categoryName:
@@ -120,6 +132,34 @@ definitions:
         type: integer
     required:
     - endDate
+    - startDate
+    - title
+    - userId
+    type: object
+  models.CreateScheduleTicketRequest:
+    properties:
+      description:
+        example: Scheduled network maintenance
+        type: string
+      endDate:
+        example: "2023-12-01T17:00:00Z"
+        type: string
+      kategori:
+        allOf:
+        - $ref: '#/definitions/models.Category'
+        example: barang
+      startDate:
+        example: "2023-12-01T09:00:00Z"
+        type: string
+      title:
+        example: Network Maintenance
+        type: string
+      userId:
+        example: 1
+        type: integer
+    required:
+    - endDate
+    - kategori
     - startDate
     - title
     - userId
@@ -281,6 +321,33 @@ definitions:
       userId:
         type: integer
     type: object
+  models.ScheduleTicket:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      endDate:
+        type: string
+      idSchedule:
+        type: integer
+      kategori:
+        $ref: '#/definitions/models.Category'
+      startDate:
+        type: string
+      tickets:
+        items:
+          $ref: '#/definitions/models.Ticket'
+        type: array
+      title:
+        type: string
+      updatedAt:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      userId:
+        type: integer
+    type: object
   models.SemesterCategory:
     enum:
     - Ganjil
@@ -289,6 +356,53 @@ definitions:
     x-enum-varnames:
     - SemesterGanjil
     - SemesterGenap
+  models.Ticket:
+    description: Ticket information
+    properties:
+      approvedAt:
+        example: "2023-01-02T00:00:00Z"
+        type: string
+      createdAt:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      description:
+        example: Need to book conference room for meeting
+        type: string
+      id:
+        example: 1
+        type: integer
+      idSchedule:
+        example: 1
+        type: integer
+      reason:
+        example: No reason provided
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.TicketStatus'
+        example: pending
+      title:
+        example: Room Booking Request
+        type: string
+      updatedAt:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      userId:
+        example: 1
+        type: integer
+    type: object
+  models.TicketStatus:
+    enum:
+    - pending
+    - accepted
+    - rejected
+    type: string
+    x-enum-varnames:
+    - StatusPending
+    - StatusAccepted
+    - StatusRejected
   models.Unblocking:
     properties:
       createdAt:
@@ -343,6 +457,25 @@ definitions:
         type: string
       title:
         example: Updated Schedule Title
+        type: string
+    type: object
+  models.UpdateScheduleTicketRequest:
+    properties:
+      description:
+        example: Updated description
+        type: string
+      endDate:
+        example: "2023-12-01T17:00:00Z"
+        type: string
+      kategori:
+        allOf:
+        - $ref: '#/definitions/models.Category'
+        example: barang
+      startDate:
+        example: "2023-12-01T09:00:00Z"
+        type: string
+      title:
+        example: Updated Schedule
         type: string
     type: object
   models.UpdateTicketRequest:
@@ -1146,6 +1279,235 @@ paths:
       summary: Get regular schedules by user ID
       tags:
       - schedule-reguler
+  /api/schedules/tickets/v1:
+    get:
+      description: Get a list of all schedule tickets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.ScheduleTicket'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all schedule tickets
+      tags:
+      - schedule-ticket
+    post:
+      consumes:
+      - application/json
+      description: Create a new schedule ticket
+      parameters:
+      - description: Schedule ticket data
+        in: body
+        name: schedule
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateScheduleTicketRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ScheduleTicket'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new schedule ticket
+      tags:
+      - schedule-ticket
+  /api/schedules/tickets/v1/{id}:
+    delete:
+      description: Delete a schedule ticket by ID
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete schedule ticket
+      tags:
+      - schedule-ticket
+    get:
+      description: Get a schedule ticket by its ID
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ScheduleTicket'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get schedule ticket by ID
+      tags:
+      - schedule-ticket
+    put:
+      consumes:
+      - application/json
+      description: Update schedule ticket information by ID. All fields are optional.
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated schedule data
+        in: body
+        name: updates
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateScheduleTicketRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ScheduleTicket'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update schedule ticket
+      tags:
+      - schedule-ticket
+  /api/schedules/tickets/v1/category/{category}:
+    get:
+      description: Get all schedule tickets with a specific category
+      parameters:
+      - description: Category (barang, ruangan)
+        in: path
+        name: category
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.ScheduleTicket'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get schedule tickets by category
+      tags:
+      - schedule-ticket
+  /api/schedules/tickets/v1/user/{user_id}:
+    get:
+      description: Get all schedule tickets for a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.ScheduleTicket'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get schedule tickets by user ID
+      tags:
+      - schedule-ticket
   /api/tickets/v1:
     get:
       description: Get a list of all tickets
