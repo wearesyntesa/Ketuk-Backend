@@ -3,6 +3,11 @@
 
 .PHONY: help up down restart logs clean migrate db-shell db-reset build stop status
 
+# Helper functions to get container names dynamically
+POSTGRES_CONTAINER = $(shell sudo docker compose ps -q postgres 2>/dev/null || sudo docker ps --filter "name=.*postgres" --format "{{.Names}}" | head -1)
+RABBITMQ_CONTAINER = $(shell sudo docker compose ps -q rabbitmq 2>/dev/null || sudo docker ps --filter "name=.*rabbitmq" --format "{{.Names}}" | head -1)
+MIGRATE_CONTAINER = $(shell sudo docker compose ps -q migrate 2>/dev/null || sudo docker ps --filter "name=.*migrate" --format "{{.Names}}" | head -1)
+
 # Default target
 help: ## Show this help message
 	@echo "Available commands:"
@@ -22,13 +27,13 @@ logs: ## Show logs for all services
 	sudo docker compose logs -f
 
 logs-postgres: ## Show PostgreSQL logs
-	sudo docker logs labs-postgres-1 -f
+	sudo docker compose logs -f postgres || (echo "Warning: PostgreSQL logs not available"; true)
 
 logs-rabbitmq: ## Show RabbitMQ logs
-	sudo docker logs labs-rabbitmq-1 -f
+	sudo docker compose logs -f rabbitmq || (echo "Warning: RabbitMQ logs not available"; true)
 
 logs-migrate: ## Show migration logs
-	sudo docker logs labs-migrate-1
+	sudo docker compose logs migrate || (echo "Note: Migrate service logs (completed or not started)"; true)
 
 stop: ## Stop services without removing containers
 	sudo docker compose stop
@@ -44,29 +49,35 @@ migrate: ## Run database migrations manually
 	sudo docker compose up migrate
 
 db-shell: ## Connect to PostgreSQL shell
-	sudo docker exec -it labs-postgres-1 psql -U user -d mydb
+	@if [ -z "$(POSTGRES_CONTAINER)" ]; then echo "Error: PostgreSQL container not found"; exit 1; fi
+	sudo docker exec -it $(POSTGRES_CONTAINER) psql -U user -d mydb
 
 db-reset: ## Reset database (WARNING: destroys all data)
 	sudo docker compose down -v
 	sudo docker compose up -d
 
 db-tables: ## Show all tables in database
-	sudo docker exec labs-postgres-1 psql -U user -d mydb -c "\dt"
+	@if [ -z "$(POSTGRES_CONTAINER)" ]; then echo "Error: PostgreSQL container not found"; exit 1; fi
+	sudo docker exec $(POSTGRES_CONTAINER) psql -U user -d mydb -c "\dt"
 
 db-users: ## Show users table content
-	sudo docker exec labs-postgres-1 psql -U user -d mydb -c "SELECT * FROM users;"
+	@if [ -z "$(POSTGRES_CONTAINER)" ]; then echo "Error: PostgreSQL container not found"; exit 1; fi
+	sudo docker exec $(POSTGRES_CONTAINER) psql -U user -d mydb -c "SELECT * FROM users;"
 
 db-tickets: ## Show tickets table content
-	sudo docker exec labs-postgres-1 psql -U user -d mydb -c "SELECT * FROM tickets;"
+	@if [ -z "$(POSTGRES_CONTAINER)" ]; then echo "Error: PostgreSQL container not found"; exit 1; fi
+	sudo docker exec $(POSTGRES_CONTAINER) psql -U user -d mydb -c "SELECT * FROM tickets;"
 
 db-sample: ## Insert sample/dummy data into tables
-	sudo docker exec -i labs-postgres-1 psql -U user -d mydb < sample_data.sql
+	@if [ -z "$(POSTGRES_CONTAINER)" ]; then echo "Error: PostgreSQL container not found"; exit 1; fi
+	sudo docker exec -i $(POSTGRES_CONTAINER) psql -U user -d mydb < sample_data.sql
 
 db-sample-show: ## Show sample data in a formatted way
+	@if [ -z "$(POSTGRES_CONTAINER)" ]; then echo "Error: PostgreSQL container not found"; exit 1; fi
 	@echo "=== USERS ==="
-	sudo docker exec labs-postgres-1 psql -U user -d mydb -c "SELECT id, email, full_name, role FROM users ORDER BY id;"
+	sudo docker exec $(POSTGRES_CONTAINER) psql -U user -d mydb -c "SELECT id, email, full_name, role FROM users ORDER BY id;"
 	@echo "\n=== TICKETS ==="
-	sudo docker exec labs-postgres-1 psql -U user -d mydb -c "SELECT * FROM tickets t JOIN users u ON t.user_id = u.id ORDER BY t.id;"
+	sudo docker exec $(POSTGRES_CONTAINER) psql -U user -d mydb -c "SELECT * FROM tickets t JOIN users u ON t.user_id = u.id ORDER BY t.id;"
 
 # Cleanup Commands
 clean: ## Remove containers, networks, and volumes
@@ -89,25 +100,27 @@ pull: ## Pull latest images
 # Monitoring Commands
 health: ## Check health of all services
 	@echo "=== PostgreSQL Health ==="
-	@sudo docker exec labs-postgres-1 pg_isready -U user -d mydb || echo "PostgreSQL not ready"
+	@if [ -z "$(POSTGRES_CONTAINER)" ]; then echo "PostgreSQL container not found"; else sudo docker exec $(POSTGRES_CONTAINER) pg_isready -U user -d mydb || echo "PostgreSQL not ready"; fi
 	@echo "\n=== RabbitMQ Health ==="
 	@curl -s http://localhost:15672/api/overview -u user:password | grep -o '"management_version":"[^"]*"' || echo "RabbitMQ not accessible"
 	@echo "\n=== Container Status ==="
 	@sudo docker compose ps
 
 backup: ## Backup database
-	sudo docker exec labs-postgres-1 pg_dump -U user mydb > backup_$(shell date +%Y%m%d_%H%M%S).sql
+	@if [ -z "$(POSTGRES_CONTAINER)" ]; then echo "Error: PostgreSQL container not found"; exit 1; fi
+	sudo docker exec $(POSTGRES_CONTAINER) pg_dump -U user mydb > backup_$(shell date +%Y%m%d_%H%M%S).sql
 	@echo "Database backed up to backup_$(shell date +%Y%m%d_%H%M%S).sql"
 
 restore: ## Restore database from backup (usage: make restore FILE=backup.sql)
 	@if [ -z "$(FILE)" ]; then echo "Usage: make restore FILE=backup.sql"; exit 1; fi
-	sudo docker exec -i labs-postgres-1 psql -U user -d mydb < $(FILE)
+	@if [ -z "$(POSTGRES_CONTAINER)" ]; then echo "Error: PostgreSQL container not found"; exit 1; fi
+	sudo docker exec -i $(POSTGRES_CONTAINER) psql -U user -d mydb < $(FILE)
 
 # Quick development workflow
 dev: ## Quick development setup (clean + up + logs)
 	make clean
 	make up
-	sleep 5
+	sleep 10
 	make logs-migrate
 	@echo "\n=== Development environment ready! ==="
 	@echo "PostgreSQL: localhost:5432 (user/password)"
