@@ -25,10 +25,10 @@ jobs:
       - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
-      - name: 🐹 Setup Go 1.21
+      - name: 🐹 Setup Go 1.25
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
+          go-version: '1.25'
           cache: true 
 
       - name: 📦 Install Dependencies
@@ -42,7 +42,7 @@ jobs:
 
       - name: 🧪 Run Unit Tests (With Race Detection)
 
-        run: go test -v -race -coverprofile=coverage.out ./...
+        run: go test -v -race ./...
 
       - name: 📊 Display Coverage
         
