@@ -24,7 +24,7 @@ CREATE TABLE unblocking (
     id SERIAL PRIMARY KEY,
     tahun INTEGER NOT NULL,
     semester semester_category NOT NULL, -- Ganjil/Genap
-    created_at CURRENT_TIMESTAMP,
+    created_at CURR ENT_TIMESTAMP,
     start_date TIMESTAMP NOT NULL,
     user_id INTEGER NOT NULL,
     end_date TIMESTAMP NOT NULL,
