@@ -23,7 +23,14 @@ func NewScheduleHandler(scheduleService *services.ScheduleService) *ScheduleHand
 
 // ScheduleTicket Handlers
 
-// GetAllScheduleTickets handles GET /api/schedules/tickets
+// @Summary Get all schedule tickets
+// @Description Get a list of all schedule tickets
+// @Tags schedule-ticket
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} models.APIResponse{data=[]models.ScheduleTicket}
+// @Failure 500 {object} models.APIResponse
+// @Router /api/schedules/tickets/v1 [get]
 func (h *ScheduleHandler) GetAllScheduleTickets(c *gin.Context) {
 	schedules, err := h.scheduleService.GetAllScheduleTickets()
 	if err != nil {
@@ -42,7 +49,16 @@ func (h *ScheduleHandler) GetAllScheduleTickets(c *gin.Context) {
 	})
 }
 
-// GetScheduleTicketByID handles GET /api/schedules/tickets/:id
+// @Summary Get schedule ticket by ID
+// @Description Get a schedule ticket by its ID
+// @Tags schedule-ticket
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Schedule ID"
+// @Success 200 {object} models.APIResponse{data=models.ScheduleTicket}
+// @Failure 400 {object} models.APIResponse
+// @Failure 404 {object} models.APIResponse
+// @Router /api/schedules/tickets/v1/{id} [get]
 func (h *ScheduleHandler) GetScheduleTicketByID(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -72,7 +88,16 @@ func (h *ScheduleHandler) GetScheduleTicketByID(c *gin.Context) {
 	})
 }
 
-// GetScheduleTicketsByUserID handles GET /api/schedules/tickets/user/:user_id
+// @Summary Get schedule tickets by user ID
+// @Description Get all schedule tickets for a specific user
+// @Tags schedule-ticket
+// @Security BearerAuth
+// @Produce json
+// @Param user_id path int true "User ID"
+// @Success 200 {object} models.APIResponse{data=[]models.ScheduleTicket}
+// @Failure 400 {object} models.APIResponse
+// @Failure 500 {object} models.APIResponse
+// @Router /api/schedules/tickets/v1/user/{user_id} [get]
 func (h *ScheduleHandler) GetScheduleTicketsByUserID(c *gin.Context) {
 	userIDParam := c.Param("user_id")
 	userID, err := strconv.Atoi(userIDParam)
@@ -102,7 +127,15 @@ func (h *ScheduleHandler) GetScheduleTicketsByUserID(c *gin.Context) {
 	})
 }
 
-// GetScheduleTicketsByCategory handles GET /api/schedules/tickets/category/:category
+// @Summary Get schedule tickets by category
+// @Description Get all schedule tickets with a specific category
+// @Tags schedule-ticket
+// @Security BearerAuth
+// @Produce json
+// @Param category path string true "Category (barang, ruangan)"
+// @Success 200 {object} models.APIResponse{data=[]models.ScheduleTicket}
+// @Failure 500 {object} models.APIResponse
+// @Router /api/schedules/tickets/v1/category/{category} [get]
 func (h *ScheduleHandler) GetScheduleTicketsByCategory(c *gin.Context) {
 	categoryParam := c.Param("category")
 	category := models.Category(categoryParam)
@@ -124,17 +157,35 @@ func (h *ScheduleHandler) GetScheduleTicketsByCategory(c *gin.Context) {
 	})
 }
 
-// CreateScheduleTicket handles POST /api/schedules/tickets
+// @Summary Create a new schedule ticket
+// @Description Create a new schedule ticket
+// @Tags schedule-ticket
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param schedule body models.CreateScheduleTicketRequest true "Schedule ticket data"
+// @Success 201 {object} models.APIResponse{data=models.ScheduleTicket}
+// @Failure 400 {object} models.APIResponse
+// @Router /api/schedules/tickets/v1 [post]
 func (h *ScheduleHandler) CreateScheduleTicket(c *gin.Context) {
-	var schedule models.ScheduleTicket
+	var req models.CreateScheduleTicketRequest
 
-	if err := c.ShouldBindJSON(&schedule); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
 			Message: "Invalid request body",
 			Error:   err.Error(),
 		})
 		return
+	}
+
+	schedule := models.ScheduleTicket{
+		Title:       req.Title,
+		StartDate:   req.StartDate,
+		EndDate:     req.EndDate,
+		UserID:      req.UserID,
+		Kategori:    req.Kategori,
+		Description: req.Description,
 	}
 
 	createdSchedule, err := h.scheduleService.CreateScheduleTicket(&schedule)
@@ -154,7 +205,18 @@ func (h *ScheduleHandler) CreateScheduleTicket(c *gin.Context) {
 	})
 }
 
-// UpdateScheduleTicket handles PUT /api/schedules/tickets/:id
+// @Summary Update schedule ticket
+// @Description Update schedule ticket information by ID. All fields are optional.
+// @Tags schedule-ticket
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "Schedule ID"
+// @Param updates body models.UpdateScheduleTicketRequest true "Updated schedule data"
+// @Success 200 {object} models.APIResponse{data=models.ScheduleTicket}
+// @Failure 400 {object} models.APIResponse
+// @Failure 404 {object} models.APIResponse
+// @Router /api/schedules/tickets/v1/{id} [put]
 func (h *ScheduleHandler) UpdateScheduleTicket(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -199,7 +261,16 @@ func (h *ScheduleHandler) UpdateScheduleTicket(c *gin.Context) {
 	})
 }
 
-// DeleteScheduleTicket handles DELETE /api/schedules/tickets/:id
+// @Summary Delete schedule ticket
+// @Description Delete a schedule ticket by ID
+// @Tags schedule-ticket
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Schedule ID"
+// @Success 200 {object} models.APIResponse
+// @Failure 400 {object} models.APIResponse
+// @Failure 404 {object} models.APIResponse
+// @Router /api/schedules/tickets/v1/{id} [delete]
 func (h *ScheduleHandler) DeleteScheduleTicket(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -230,7 +301,14 @@ func (h *ScheduleHandler) DeleteScheduleTicket(c *gin.Context) {
 
 // ScheduleReguler Handlers
 
-// GetAllScheduleReguler handles GET /api/schedules/reguler
+// @Summary Get all regular schedules
+// @Description Get a list of all regular schedules
+// @Tags schedule-reguler
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} models.APIResponse{data=[]models.ScheduleReguler}
+// @Failure 500 {object} models.APIResponse
+// @Router /api/schedules/reguler/v1 [get]
 func (h *ScheduleHandler) GetAllScheduleReguler(c *gin.Context) {
 	schedules, err := h.scheduleService.GetAllScheduleReguler()
 	if err != nil {
@@ -249,7 +327,16 @@ func (h *ScheduleHandler) GetAllScheduleReguler(c *gin.Context) {
 	})
 }
 
-// GetScheduleRegulerByID handles GET /api/schedules/reguler/:id
+// @Summary Get regular schedule by ID
+// @Description Get a regular schedule by its ID
+// @Tags schedule-reguler
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Schedule ID"
+// @Success 200 {object} models.APIResponse{data=models.ScheduleReguler}
+// @Failure 400 {object} models.APIResponse
+// @Failure 404 {object} models.APIResponse
+// @Router /api/schedules/reguler/v1/{id} [get]
 func (h *ScheduleHandler) GetScheduleRegulerByID(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -279,7 +366,16 @@ func (h *ScheduleHandler) GetScheduleRegulerByID(c *gin.Context) {
 	})
 }
 
-// GetScheduleRegulerByUserID handles GET /api/schedules/reguler/user/:user_id
+// @Summary Get regular schedules by user ID
+// @Description Get all regular schedules for a specific user
+// @Tags schedule-reguler
+// @Security BearerAuth
+// @Produce json
+// @Param user_id path int true "User ID"
+// @Success 200 {object} models.APIResponse{data=[]models.ScheduleReguler}
+// @Failure 400 {object} models.APIResponse
+// @Failure 500 {object} models.APIResponse
+// @Router /api/schedules/reguler/v1/user/{user_id} [get]
 func (h *ScheduleHandler) GetScheduleRegulerByUserID(c *gin.Context) {
 	userIDParam := c.Param("user_id")
 	userID, err := strconv.Atoi(userIDParam)
@@ -309,17 +405,33 @@ func (h *ScheduleHandler) GetScheduleRegulerByUserID(c *gin.Context) {
 	})
 }
 
-// CreateScheduleReguler handles POST /api/schedules/reguler
+// @Summary Create a new regular schedule
+// @Description Create a new regular schedule
+// @Tags schedule-reguler
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param schedule body models.CreateScheduleRegulerRequest true "Schedule data"
+// @Success 201 {object} models.APIResponse{data=models.ScheduleReguler}
+// @Failure 400 {object} models.APIResponse
+// @Router /api/schedules/reguler/v1 [post]
 func (h *ScheduleHandler) CreateScheduleReguler(c *gin.Context) {
-	var schedule models.ScheduleReguler
+	var req models.CreateScheduleRegulerRequest
 
-	if err := c.ShouldBindJSON(&schedule); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, models.APIResponse{
 			Success: false,
 			Message: "Invalid request body",
 			Error:   err.Error(),
 		})
 		return
+	}
+
+	schedule := models.ScheduleReguler{
+		Title:     req.Title,
+		StartDate: req.StartDate,
+		EndDate:   req.EndDate,
+		UserID:    req.UserID,
 	}
 
 	createdSchedule, err := h.scheduleService.CreateScheduleReguler(&schedule)
@@ -339,7 +451,18 @@ func (h *ScheduleHandler) CreateScheduleReguler(c *gin.Context) {
 	})
 }
 
-// UpdateScheduleReguler handles PUT /api/schedules/reguler/:id
+// @Summary Update regular schedule
+// @Description Update regular schedule information by ID. All fields are optional.
+// @Tags schedule-reguler
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "Schedule ID"
+// @Param updates body models.UpdateScheduleRegulerRequest true "Updated schedule data"
+// @Success 200 {object} models.APIResponse{data=models.ScheduleReguler}
+// @Failure 400 {object} models.APIResponse
+// @Failure 404 {object} models.APIResponse
+// @Router /api/schedules/reguler/v1/{id} [put]
 func (h *ScheduleHandler) UpdateScheduleReguler(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -384,7 +507,16 @@ func (h *ScheduleHandler) UpdateScheduleReguler(c *gin.Context) {
 	})
 }
 
-// DeleteScheduleReguler handles DELETE /api/schedules/reguler/:id
+// @Summary Delete regular schedule
+// @Description Delete a regular schedule by ID
+// @Tags schedule-reguler
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Schedule ID"
+// @Success 200 {object} models.APIResponse
+// @Failure 400 {object} models.APIResponse
+// @Failure 404 {object} models.APIResponse
+// @Router /api/schedules/reguler/v1/{id} [delete]
 func (h *ScheduleHandler) DeleteScheduleReguler(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)

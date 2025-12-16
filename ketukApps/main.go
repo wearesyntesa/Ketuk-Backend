@@ -67,6 +67,7 @@ func main() {
 	itemsService := services.NewItemService(db)
 	unblockingService := services.NewUnblockingService(db)
 	googleOAuthService := services.NewGoogleOAuthService(cfg)
+	auditService := services.NewAuditService(db)
 
 	// Start the worker with ticket service and schedule service
 	go func() {
@@ -81,9 +82,11 @@ func main() {
 	tickets := handlers.NewTicketHandler(ticketService)
 	items := handlers.NewItemHandler(itemsService)
 	unblockingHandler := handlers.NewUnblockingHandler(unblockingService)
+	scheduleHandler := handlers.NewScheduleHandler(scheduleService)
+	auditHandler := handlers.NewAuditHandler(auditService)
 
 	// Setup Gin router
-	router := setupRouter(authHandler, userHandler, tickets, items, unblockingHandler)
+	router := setupRouter(authHandler, userHandler, tickets, items, unblockingHandler, scheduleHandler, auditHandler)
 
 	// Setup Scheduler
 
@@ -108,7 +111,7 @@ func main() {
 	}
 }
 
-func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler, unblockingHandler *handlers.UnblockingHandler) *gin.Engine {
+func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler, unblockingHandler *handlers.UnblockingHandler, scheduleHandler *handlers.ScheduleHandler, auditHandler *handlers.AuditHandler) *gin.Engine {
 	// Set Gin mode based on environment
 	gin.SetMode(gin.DebugMode) // Change to gin.DebugMode for development
 
@@ -207,6 +210,43 @@ func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHa
 				unblocking.GET("/v1/:id", middleware.RequireRole("admin"), unblockingHandler.GetUnblockingByID)
 				unblocking.GET("/v1/user/:user_id", middleware.RequireRole("admin"), unblockingHandler.GetUnblockingsByUserID)
 				unblocking.POST("/v1", middleware.RequireRole("admin"), unblockingHandler.CreateUnblocking)
+			}
+
+			// Schedule Reguler endpoints
+			scheduleReguler := protected.Group("/schedules/reguler")
+			{
+				// All authenticated users can view, admin can manage
+				scheduleReguler.GET("/v1", middleware.RequireRole("admin", "user"), scheduleHandler.GetAllScheduleReguler)
+				scheduleReguler.GET("/v1/:id", middleware.RequireRole("admin", "user"), scheduleHandler.GetScheduleRegulerByID)
+				scheduleReguler.GET("/v1/user/:user_id", middleware.RequireRole("admin", "user"), scheduleHandler.GetScheduleRegulerByUserID)
+
+				// Admin only
+				scheduleReguler.POST("/v1", middleware.RequireRole("admin"), scheduleHandler.CreateScheduleReguler)
+				scheduleReguler.PUT("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.UpdateScheduleReguler)
+				scheduleReguler.DELETE("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.DeleteScheduleReguler)
+			}
+
+			// Schedule Ticket endpoints
+			scheduleTicket := protected.Group("/schedules/tickets")
+			{
+				// All authenticated users can view, admin can manage
+				scheduleTicket.GET("/v1", middleware.RequireRole("admin", "user"), scheduleHandler.GetAllScheduleTickets)
+				scheduleTicket.GET("/v1/:id", middleware.RequireRole("admin", "user"), scheduleHandler.GetScheduleTicketByID)
+				scheduleTicket.GET("/v1/user/:user_id", middleware.RequireRole("admin", "user"), scheduleHandler.GetScheduleTicketsByUserID)
+				scheduleTicket.GET("/v1/category/:category", middleware.RequireRole("admin", "user"), scheduleHandler.GetScheduleTicketsByCategory)
+
+				// Admin only
+				scheduleTicket.POST("/v1", middleware.RequireRole("admin"), scheduleHandler.CreateScheduleTicket)
+				scheduleTicket.PUT("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.UpdateScheduleTicket)
+				scheduleTicket.DELETE("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.DeleteScheduleTicket)
+			}
+
+			// Audit endpoints
+			audit := protected.Group("/audit")
+			{
+				// Both users and admins can view audit logs
+				audit.GET("/tickets/:ticket_id/logs", middleware.RequireRole("admin", "user"), auditHandler.GetTicketEventLogs)
+				audit.GET("/users/:user_id/logs", middleware.RequireRole("admin"), auditHandler.GetEventLogsByUser)
 			}
 		}
 	}

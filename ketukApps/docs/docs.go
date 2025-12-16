@@ -23,6 +23,128 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/audit/tickets/{ticket_id}/logs": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all event logs for a specific ticket",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit"
+                ],
+                "summary": "Get ticket event logs",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ticket ID",
+                        "name": "ticket_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.TicketEventLog"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/audit/users/{user_id}/logs": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all event logs created by a specific user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit"
+                ],
+                "summary": "Get event logs by user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.TicketEventLog"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/v1/google/callback": {
             "get": {
                 "description": "Handle callback from Google OAuth and authenticate user",
@@ -907,6 +1029,725 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/schedules/reguler/v1": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a list of all regular schedules",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule-reguler"
+                ],
+                "summary": "Get all regular schedules",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.ScheduleReguler"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new regular schedule",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule-reguler"
+                ],
+                "summary": "Create a new regular schedule",
+                "parameters": [
+                    {
+                        "description": "Schedule data",
+                        "name": "schedule",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateScheduleRegulerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.ScheduleReguler"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/schedules/reguler/v1/user/{user_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all regular schedules for a specific user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule-reguler"
+                ],
+                "summary": "Get regular schedules by user ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.ScheduleReguler"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/schedules/reguler/v1/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a regular schedule by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule-reguler"
+                ],
+                "summary": "Get regular schedule by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Schedule ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.ScheduleReguler"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update regular schedule information by ID. All fields are optional.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule-reguler"
+                ],
+                "summary": "Update regular schedule",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Schedule ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated schedule data",
+                        "name": "updates",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateScheduleRegulerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.ScheduleReguler"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a regular schedule by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule-reguler"
+                ],
+                "summary": "Delete regular schedule",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Schedule ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/schedules/tickets/v1": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a list of all schedule tickets",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule-ticket"
+                ],
+                "summary": "Get all schedule tickets",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.ScheduleTicket"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new schedule ticket",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule-ticket"
+                ],
+                "summary": "Create a new schedule ticket",
+                "parameters": [
+                    {
+                        "description": "Schedule ticket data",
+                        "name": "schedule",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateScheduleTicketRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.ScheduleTicket"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/schedules/tickets/v1/category/{category}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all schedule tickets with a specific category",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule-ticket"
+                ],
+                "summary": "Get schedule tickets by category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Category (barang, ruangan)",
+                        "name": "category",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.ScheduleTicket"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/schedules/tickets/v1/user/{user_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all schedule tickets for a specific user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule-ticket"
+                ],
+                "summary": "Get schedule tickets by user ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.ScheduleTicket"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/schedules/tickets/v1/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a schedule ticket by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule-ticket"
+                ],
+                "summary": "Get schedule ticket by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Schedule ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.ScheduleTicket"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update schedule ticket information by ID. All fields are optional.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule-ticket"
+                ],
+                "summary": "Update schedule ticket",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Schedule ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated schedule data",
+                        "name": "updates",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateScheduleTicketRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.ScheduleTicket"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a schedule ticket by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule-ticket"
+                ],
+                "summary": "Delete schedule ticket",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Schedule ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1829,6 +2670,21 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Category": {
+            "type": "string",
+            "enum": [
+                "Kelas",
+                "Lainnya",
+                "Praktikum",
+                "Skripsi"
+            ],
+            "x-enum-varnames": [
+                "Kelas",
+                "Lainnya",
+                "Praktikum",
+                "Skripsi"
+            ]
+        },
         "models.CreateItemCategoryRequest": {
             "type": "object",
             "properties": {
@@ -1864,6 +2720,73 @@ const docTemplate = `{
                 "year": {
                     "type": "integer",
                     "example": 2023
+                }
+            }
+        },
+        "models.CreateScheduleRegulerRequest": {
+            "type": "object",
+            "required": [
+                "endDate",
+                "startDate",
+                "title",
+                "userId"
+            ],
+            "properties": {
+                "endDate": {
+                    "type": "string",
+                    "example": "2023-12-01T17:00:00Z"
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2023-12-01T09:00:00Z"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Regular Maintenance Schedule"
+                },
+                "userId": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "models.CreateScheduleTicketRequest": {
+            "type": "object",
+            "required": [
+                "endDate",
+                "kategori",
+                "startDate",
+                "title",
+                "userId"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "example": "Scheduled network maintenance"
+                },
+                "endDate": {
+                    "type": "string",
+                    "example": "2023-12-01T17:00:00Z"
+                },
+                "kategori": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Category"
+                        }
+                    ],
+                    "example": "barang"
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2023-12-01T09:00:00Z"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Network Maintenance"
+                },
+                "userId": {
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
@@ -2061,6 +2984,73 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ScheduleReguler": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "idSchedule": {
+                    "type": "integer"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.ScheduleTicket": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "idSchedule": {
+                    "type": "integer"
+                },
+                "kategori": {
+                    "$ref": "#/definitions/models.Category"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "tickets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Ticket"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.SemesterCategory": {
             "type": "string",
             "enum": [
@@ -2070,6 +3060,140 @@ const docTemplate = `{
             "x-enum-varnames": [
                 "SemesterGanjil",
                 "SemesterGenap"
+            ]
+        },
+        "models.Ticket": {
+            "description": "Ticket information",
+            "type": "object",
+            "properties": {
+                "approvedAt": {
+                    "type": "string",
+                    "example": "2023-01-02T00:00:00Z"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Need to book conference room for meeting"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "idSchedule": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "reason": {
+                    "type": "string",
+                    "example": "No reason provided"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TicketStatus"
+                        }
+                    ],
+                    "example": "pending"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Room Booking Request"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userId": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "models.TicketEventAction": {
+            "type": "string",
+            "enum": [
+                "created",
+                "updated",
+                "status_changed",
+                "deleted",
+                "assigned",
+                "commented",
+                "approved",
+                "rejected"
+            ],
+            "x-enum-varnames": [
+                "EventCreated",
+                "EventUpdated",
+                "EventStatusChanged",
+                "EventDeleted",
+                "EventAssigned",
+                "EventCommented",
+                "EventApproved",
+                "EventRejected"
+            ]
+        },
+        "models.TicketEventLog": {
+            "description": "Ticket event log for audit trail",
+            "type": "object",
+            "properties": {
+                "action": {
+                    "$ref": "#/definitions/models.TicketEventAction"
+                },
+                "changes": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ipAddress": {
+                    "type": "string"
+                },
+                "newValue": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "oldValue": {
+                    "type": "string"
+                },
+                "ticket": {
+                    "$ref": "#/definitions/models.Ticket"
+                },
+                "ticketId": {
+                    "type": "integer"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userAgent": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.TicketStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "accepted",
+                "rejected"
+            ],
+            "x-enum-varnames": [
+                "StatusPending",
+                "StatusAccepted",
+                "StatusRejected"
             ]
         },
         "models.Unblocking": {
@@ -2134,6 +3258,52 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.Unblocking"
                     }
+                }
+            }
+        },
+        "models.UpdateScheduleRegulerRequest": {
+            "type": "object",
+            "properties": {
+                "endDate": {
+                    "type": "string",
+                    "example": "2023-12-01T17:00:00Z"
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2023-12-01T09:00:00Z"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Updated Schedule Title"
+                }
+            }
+        },
+        "models.UpdateScheduleTicketRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "example": "Updated description"
+                },
+                "endDate": {
+                    "type": "string",
+                    "example": "2023-12-01T17:00:00Z"
+                },
+                "kategori": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Category"
+                        }
+                    ],
+                    "example": "barang"
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2023-12-01T09:00:00Z"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Updated Schedule"
                 }
             }
         },
