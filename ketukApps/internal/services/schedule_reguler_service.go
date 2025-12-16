@@ -1,4 +1,5 @@
 package services
+
 import (
 	"errors"
 	"time"
@@ -59,8 +60,9 @@ func (s *ScheduleRegulerService) GetScheduleRegulersByDateRange(startDate, endDa
 		Find(&schedules)
 	return schedules, result.Error
 }
+
 // CreateScheduleReguler creates a new schedule reguler
-func (s *ScheduleRegulerService) CreateScheduleReguler(schedule *models.ScheduleReguler) (*models.ScheduleReguler, error){
+func (s *ScheduleRegulerService) CreateScheduleReguler(schedule *models.ScheduleReguler) (*models.ScheduleReguler, error) {
 	result := s.db.Create(schedule)
 	if result.Error != nil {
 		return nil, result.Error

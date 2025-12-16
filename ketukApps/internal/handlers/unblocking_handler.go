@@ -47,7 +47,6 @@ func (h *UnblockingHandler) CreateUnblocking(c *gin.Context) {
 		UserID:    req.UserID,
 	}
 
-
 	unblocking, err := h.unblockingService.Create(&unblockingData)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

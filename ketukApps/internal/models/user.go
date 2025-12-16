@@ -9,13 +9,13 @@ import (
 type User struct {
 	ID uint `json:"id" gorm:"primaryKey" example:"1"`
 	// GoogleSub is kept for backwards compatibility with existing data
-	GoogleSub  string    `json:"google_sub,omitempty" gorm:"uniqueIndex;size:255" example:"google-oauth2|123456789"`
-	Name       string    `json:"name" binding:"required" gorm:"column:full_name;size:255;not null" example:"John Doe"`
-	Email      string    `json:"email" binding:"required,email" gorm:"uniqueIndex;size:255;not null" example:"john.doe@example.com"`
-	Password   string    `json:"-" gorm:"size:255"` // Password hash, not included in JSON responses
-	Role       string    `json:"role" gorm:"type:user_role;default:user" example:"user"`
-	CreatedAt  time.Time `json:"created_at" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt  time.Time `json:"updated_at" example:"2023-01-01T00:00:00Z"`
+	GoogleSub string    `json:"google_sub,omitempty" gorm:"uniqueIndex;size:255" example:"google-oauth2|123456789"`
+	Name      string    `json:"name" binding:"required" gorm:"column:full_name;size:255;not null" example:"John Doe"`
+	Email     string    `json:"email" binding:"required,email" gorm:"uniqueIndex;size:255;not null" example:"john.doe@example.com"`
+	Password  string    `json:"-" gorm:"size:255"` // Password hash, not included in JSON responses
+	Role      string    `json:"role" gorm:"type:user_role;default:user" example:"user"`
+	CreatedAt time.Time `json:"created_at" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time `json:"updated_at" example:"2023-01-01T00:00:00Z"`
 }
 
 // CreateUserRequest represents the request body for creating a new user
