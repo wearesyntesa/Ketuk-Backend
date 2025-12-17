@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"ketukApps/internal/models"
+	"ketukApps/internal/scheduler"
 	"ketukApps/internal/services"
 	"log"
 	"time"
@@ -39,6 +40,11 @@ func SchduleWorker(name string, ticketService *services.TicketService, scheduleS
 				UserID:      int(requestData.UserID),
 				Kategori:    requestData.Category,
 				Description: requestData.Description,
+			}
+
+			if !scheduler.IsUnblockEnabled() {
+				log.Printf("no no ya lagi di block")
+				continue
 			}
 
 			savedSchedule, err := scheduleService.CreateScheduleTicket(scheduleTicket)
