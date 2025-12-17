@@ -95,3 +95,6 @@ node_modules/
 
 # Migration lock files
 migrate.lock
+test/go.mod
+test/go.sum
+test/main.go
