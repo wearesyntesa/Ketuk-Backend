@@ -216,14 +216,14 @@ func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHa
 			scheduleReguler := protected.Group("/schedules/reguler")
 			{
 				// All authenticated users can view, admin can manage
-				scheduleReguler.GET("/v1", middleware.RequireRole("admin", "user"), scheduleHandler.GetAllScheduleReguler)
-				scheduleReguler.GET("/v1/:id", middleware.RequireRole("admin", "user"), scheduleHandler.GetScheduleRegulerByID)
-				scheduleReguler.GET("/v1/user/:user_id", middleware.RequireRole("admin", "user"), scheduleHandler.GetScheduleRegulerByUserID)
+				scheduleReguler.GET("/v1", middleware.RequireRole("admin", "user"), middleware.CheckUnblockStateReverseTechnique(), scheduleHandler.GetAllScheduleReguler)
+				scheduleReguler.GET("/v1/:id", middleware.RequireRole("admin", "user"), middleware.CheckUnblockStateReverseTechnique(), scheduleHandler.GetScheduleRegulerByID)
+				scheduleReguler.GET("/v1/user/:user_id", middleware.RequireRole("admin", "user"), middleware.CheckUnblockStateReverseTechnique(), scheduleHandler.GetScheduleRegulerByUserID)
 
 				// Admin only
-				scheduleReguler.POST("/v1", middleware.RequireRole("admin"), scheduleHandler.CreateScheduleReguler)
-				scheduleReguler.PUT("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.UpdateScheduleReguler)
-				scheduleReguler.DELETE("/v1/:id", middleware.RequireRole("admin"), scheduleHandler.DeleteScheduleReguler)
+				scheduleReguler.POST("/v1", middleware.RequireRole("admin"), middleware.CheckUnblockStateReverseTechnique(), scheduleHandler.CreateScheduleReguler)
+				scheduleReguler.PUT("/v1/:id", middleware.RequireRole("admin"), middleware.CheckUnblockStateReverseTechnique(), scheduleHandler.UpdateScheduleReguler)
+				scheduleReguler.DELETE("/v1/:id", middleware.RequireRole("admin"), middleware.CheckUnblockStateReverseTechnique(), scheduleHandler.DeleteScheduleReguler)
 			}
 
 			// Schedule Ticket endpoints

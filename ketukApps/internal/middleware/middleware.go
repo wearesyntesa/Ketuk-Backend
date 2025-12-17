@@ -253,3 +253,19 @@ func CheckUnblockState() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func CheckUnblockStateReverseTechnique() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if scheduler.IsUnblockEnabled() {
+			c.JSON(http.StatusForbidden, models.APIResponse{
+				Success: false,
+				Message: "This feature is currently enabled, cant",
+				Error:   "Please contact the administrator",
+			})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
