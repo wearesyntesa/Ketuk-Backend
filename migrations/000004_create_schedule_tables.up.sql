@@ -43,7 +43,6 @@ CREATE TABLE schedule_reguler (
 );
 
 -- Create indexes for better performance
-CREATE INDEX idx_schedule_from_ticket_ticket_id ON schedule_ticket(ticket_id);
 CREATE INDEX idx_schedule_from_ticket_user_id ON schedule_ticket(user_id);
 CREATE INDEX idx_schedule_from_ticket_start_date ON schedule_ticket(start_date);
 CREATE INDEX idx_schedule_from_ticket_end_date ON schedule_ticket(end_date);

@@ -6,11 +6,11 @@
 DROP INDEX IF EXISTS idx_tickets_id_schedule;
 
 -- Drop the foreign key constraint
-ALTER TABLE tickets 
+ALTER TABLE tickets
 DROP CONSTRAINT IF EXISTS fk_tickets_schedule;
 
 -- Drop the column
-ALTER TABLE tickets 
+ALTER TABLE tickets
 DROP COLUMN IF EXISTS id_schedule;
 -- ================================================
 -- Rollback Migration: Re-add ticket_id to schedule_ticket table
@@ -22,3 +22,5 @@ ADD CONSTRAINT fk_schedule_ticket_tickets
 FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE;
 -- Remove comment from schedule_ticket table
 COMMENT ON TABLE schedule_ticket IS NULL;
+
+CREATE INDEX idx_schedule_from_ticket_ticket_id ON schedule_ticket(ticket_id);
