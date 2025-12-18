@@ -76,7 +76,7 @@ func (s *TicketService) GetByStatus(status string) ([]models.Ticket, error) {
 }
 
 // Create creates a new ticket using the new model structure
-func (s *TicketService) Create(userID uint, title, description string) (*models.Ticket, error) {
+func (s *TicketService) Create(userID uint, title, description, lecturer string) (*models.Ticket, error) {
 	if title == "" {
 		return nil, errors.New("title is required")
 	}
@@ -88,6 +88,7 @@ func (s *TicketService) Create(userID uint, title, description string) (*models.
 		UserID:      userID,
 		Title:       title,
 		Description: description,
+		Lecturer:    lecturer,
 		Status:      "pending",
 	}
 
@@ -118,7 +119,7 @@ func (s *TicketService) Create(userID uint, title, description string) (*models.
 
 // CreateFromRequest creates a new ticket from CreateTicketRequest
 func (s *TicketService) CreateFromRequest(req models.CreateTicketRequest) (*models.Ticket, error) {
-	return s.Create(req.UserID, req.Title, req.Description)
+	return s.Create(req.UserID, req.Title, req.Description, req.Lecturer)
 }
 
 // CreateFromModel creates a new ticket from a models.Ticket (used for queue processing)
@@ -322,7 +323,7 @@ The Support Team`,
 }
 
 // Update updates ticket details
-func (s *TicketService) Update(id uint, title, description string) (*models.Ticket, error) {
+func (s *TicketService) Update(id uint, title, description, lecturer string) (*models.Ticket, error) {
 	var ticket models.Ticket
 	if err := s.db.First(&ticket, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -340,6 +341,9 @@ func (s *TicketService) Update(id uint, title, description string) (*models.Tick
 	}
 	if description != "" {
 		updates["description"] = description
+	}
+	if lecturer != "" {
+		updates["lecturer"] = lecturer
 	}
 
 	if len(updates) > 0 {
@@ -374,7 +378,7 @@ func (s *TicketService) Update(id uint, title, description string) (*models.Tick
 
 // UpdateFromRequest updates ticket from UpdateTicketRequest
 func (s *TicketService) UpdateFromRequest(id uint, req models.UpdateTicketRequest) (*models.Ticket, error) {
-	return s.Update(id, req.Title, req.Description)
+	return s.Update(id, req.Title, req.Description, req.Lecturer)
 }
 
 // Delete removes a ticket

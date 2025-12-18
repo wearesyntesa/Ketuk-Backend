@@ -11,6 +11,7 @@ type ScheduleTicket struct {
 	UserID      int       `json:"userId" gorm:"column:user_id;not null"`
 	Kategori    Category  `json:"kategori" gorm:"column:kategori;type:ticket_category;not null"`
 	Description string    `json:"description" gorm:"column:description;type:text"`
+	Lecturer    string    `json:"lecturer,omitempty" gorm:"column:lecturer;size:255"`
 	CreatedAt   time.Time `json:"createdAt" gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt   time.Time `json:"updatedAt" gorm:"column:updated_at;autoUpdateTime"`
 	User        *User     `json:"user,omitempty" gorm:"foreignKey:UserID"`
@@ -44,6 +45,7 @@ type ScheduleReguler struct {
 	StartDate  time.Time `json:"startDate" gorm:"column:start_date;not null"`
 	EndDate    time.Time `json:"endDate" gorm:"column:end_date;not null"`
 	UserID     int       `json:"userId" gorm:"column:user_id;not null"`
+	Lecturer   string    `json:"lecturer,omitempty" gorm:"column:lecturer;size:255"`
 	CreatedAt  time.Time `json:"createdAt" gorm:"column:created_at;autoCreateTime"`
 	User       *User     `json:"user,omitempty" gorm:"foreignKey:UserID"`
 }
@@ -91,6 +93,7 @@ type CreateScheduleRegulerRequest struct {
 	StartDate time.Time `json:"startDate" binding:"required" example:"2023-12-01T09:00:00Z"`
 	EndDate   time.Time `json:"endDate" binding:"required" example:"2023-12-01T17:00:00Z"`
 	UserID    int       `json:"userId" binding:"required" example:"1"`
+	Lecturer  string    `json:"lecturer,omitempty" example:"Dr. John Doe"`
 }
 
 // UpdateScheduleRegulerRequest represents request to update schedule reguler
@@ -98,6 +101,7 @@ type UpdateScheduleRegulerRequest struct {
 	Title     *string    `json:"title,omitempty" example:"Updated Schedule Title"`
 	StartDate *time.Time `json:"startDate,omitempty" example:"2023-12-01T09:00:00Z"`
 	EndDate   *time.Time `json:"endDate,omitempty" example:"2023-12-01T17:00:00Z"`
+	Lecturer  *string    `json:"lecturer,omitempty" example:"Dr. John Doe"`
 }
 
 // CreateScheduleTicketRequest represents request to create schedule ticket
@@ -108,6 +112,7 @@ type CreateScheduleTicketRequest struct {
 	UserID      int       `json:"userId" binding:"required" example:"1"`
 	Kategori    Category  `json:"kategori" binding:"required" example:"barang"`
 	Description string    `json:"description" example:"Scheduled network maintenance"`
+	Lecturer    string    `json:"lecturer,omitempty" example:"Dr. John Doe"`
 }
 
 // UpdateScheduleTicketRequest represents request to update schedule ticket
@@ -117,4 +122,5 @@ type UpdateScheduleTicketRequest struct {
 	EndDate     *time.Time `json:"endDate,omitempty" example:"2023-12-01T17:00:00Z"`
 	Kategori    *Category  `json:"kategori,omitempty" example:"barang"`
 	Description *string    `json:"description,omitempty" example:"Updated description"`
+	Lecturer    *string    `json:"lecturer,omitempty" example:"Dr. John Doe"`
 }

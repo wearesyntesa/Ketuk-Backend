@@ -22,16 +22,16 @@ func NewEnhancedTicketService(db *gorm.DB) *EnhancedTicketService {
 }
 
 // CreateWithEvents creates a ticket and logs events using new model structure
-func (s *EnhancedTicketService) CreateWithEvents(ctx context.Context, userID uint, title, description string) (*models.Ticket, error) {
+func (s *EnhancedTicketService) CreateWithEvents(ctx context.Context, userID uint, title, description, lecturer string) (*models.Ticket, error) {
 	// Create ticket using base service
-	ticket, err := s.TicketService.Create(userID, title, description)
+	ticket, err := s.TicketService.Create(userID, title, description, lecturer)
 	if err != nil {
 		return nil, err
 	}
 
 	// Log ticket created event
-	log.Printf("Ticket created: ID=%d, Title='%s', User=%d",
-		ticket.ID, ticket.Title, ticket.UserID)
+	log.Printf("Ticket created: ID=%d, Title='%s', User=%d, Lecturer='%s'",
+		ticket.ID, ticket.Title, ticket.UserID, ticket.Lecturer)
 
 	// Send notification to user (simplified logging for now)
 	go s.sendTicketCreatedNotification(ctx, ticket)
@@ -41,7 +41,7 @@ func (s *EnhancedTicketService) CreateWithEvents(ctx context.Context, userID uin
 
 // CreateFromRequest creates a ticket using CreateTicketRequest structure and publishes events
 func (s *EnhancedTicketService) CreateFromRequest(ctx context.Context, req models.CreateTicketRequest) (*models.Ticket, error) {
-	return s.CreateWithEvents(ctx, req.UserID, req.Title, req.Description)
+	return s.CreateWithEvents(ctx, req.UserID, req.Title, req.Description, req.Lecturer)
 }
 
 // UpdateStatusWithEvents updates ticket status and logs events

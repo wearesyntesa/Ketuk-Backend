@@ -40,6 +40,7 @@ services:
       - ./migrations/000006_add_password_to_users.up.sql:/migrations/000006_add_password_to_users.up.sql
       - ./migrations/000007_adding_reason_in_ticket.up.sql:/migrations/000007_adding_reason_in_ticket.up.sql
       - ./migrations/000008_create_ticket_event_log.up.sql:/migrations/000008_create_ticket_event_log.up.sql
+      - ./migrations/000009_add_lecturer_to_tables.up.sql:/migrations/000009_add_lecturer_to_tables.up.sql
       - ./migrate.sh:/migrate.sh
     command: ["/migrate.sh"]
     restart: "no"

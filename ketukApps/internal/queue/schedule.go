@@ -42,6 +42,7 @@ func SchduleWorker(name string, ticketService *services.TicketService, scheduleS
 				UserID:      int(requestData.UserID),
 				Kategori:    requestData.Category,
 				Description: requestData.Description,
+				Lecturer:    requestData.Lecturer,
 			}
 
 			if !scheduler.IsUnblockEnabled() {
@@ -60,6 +61,7 @@ func SchduleWorker(name string, ticketService *services.TicketService, scheduleS
 				UserID:      requestData.UserID,
 				Title:       requestData.Title,
 				Description: requestData.Description,
+				Lecturer:    requestData.Lecturer,
 				Status:      models.TicketStatus(requestData.Status),
 				IDSchedule:  &savedSchedule.IDSchedule,
 			}
@@ -140,6 +142,7 @@ type ScheduleTicketMessage struct {
 	Category    models.Category `json:"category"`
 	StartDate   time.Time       `json:"startDate"`
 	EndDate     time.Time       `json:"endDate"`
+	Lecturer    string          `json:"lecturer,omitempty"`
 }
 
 func parseBodyToJSON(body []byte) (*ScheduleTicketMessage, error) {
