@@ -18,6 +18,7 @@ type Config struct {
 	WorkOS    WorkOSConfig
 	Queue     QueueConfig
 	Schedule  ScheduleConfig
+	SMTPGmail SMTPGmailConfig
 }
 
 type GoogleOAuthConfig struct {
@@ -78,6 +79,12 @@ type ScheduleConfig struct {
 	UnblockCron string
 }
 
+type SMTPGmailConfig struct {
+	Email    string
+	Password string
+	Host	 string
+}
+
 func Load() *Config {
 	// Load .env file if it exists
 	if err := godotenv.Load(); err != nil {
@@ -132,6 +139,11 @@ func Load() *Config {
 		},
 		Schedule: ScheduleConfig{
 			UnblockCron: getEnv("CRON_SCHEDULE_UNBLOCK_JOBS", "*/1 * * * *"),
+		},
+		SMTPGmail: SMTPGmailConfig{
+			Email:    getEnv("SMTP_GMAIL_EMAIL", ""),
+			Password: getEnv("SMTP_GMAIL_PASSWORD", ""),
+			Host:     getEnv("SMTP_GMAIL_HOST", "smtp.gmail.com"),
 		},
 	}
 }

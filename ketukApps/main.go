@@ -46,6 +46,9 @@ func main() {
 	// Set JWT secret
 	utils.SetJWTSecret(cfg.JWTSecret)
 
+	//set smpt gmail auth
+	GmailSmtpAuth := utils.SetSMTPAuth(cfg.SMTPGmail.Email, cfg.SMTPGmail.Password, cfg.SMTPGmail.Host)
+
 	// Initialize database
 	if err := database.Initialize(cfg); err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
@@ -71,7 +74,7 @@ func main() {
 
 	// Start the worker with ticket service and schedule service
 	go func() {
-		if err := queue.SchduleWorker(cfg.Queue.Name, ticketService, scheduleService); err != nil {
+		if err := queue.SchduleWorker(cfg.Queue.Name, ticketService, scheduleService, &GmailSmtpAuth, cfg.SMTPGmail.Email); err != nil {
 			log.Fatalf("Failed to start schedule worker: %v", err)
 		}
 	}()

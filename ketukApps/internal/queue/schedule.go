@@ -6,13 +6,15 @@ import (
 	"ketukApps/internal/models"
 	"ketukApps/internal/scheduler"
 	"ketukApps/internal/services"
+	"ketukApps/internal/utils"
 	"log"
+	"net/smtp"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func SchduleWorker(name string, ticketService *services.TicketService, scheduleService *services.ScheduleService) error {
+func SchduleWorker(name string, ticketService *services.TicketService, scheduleService *services.ScheduleService, smtpAuth *smtp.Auth, smtpEmail string) error {
 	for {
 		msgs, err := ConsumerSchedule(name)
 		if err != nil {
@@ -70,6 +72,23 @@ func SchduleWorker(name string, ticketService *services.TicketService, scheduleS
 			}
 
 			log.Printf("Successfully saved ticket to database with ID: %d, linked to schedule ID: %d", savedTicket.ID, *savedTicket.IDSchedule)
+
+			// Send notification email
+			subject := "New Ticket Created: " + savedTicket.Title
+			body := fmt.Sprintf("A new ticket has been created with the following details:\n\nTitle: %s\nDescription: %s\nStatus: %s\nSchedule Start: %s\nSchedule End: %s\n",
+				savedTicket.Title,
+				savedTicket.Description,
+				savedTicket.Status,
+				savedSchedule.StartDate.Format(time.RFC1123),
+				savedSchedule.EndDate.Format(time.RFC1123),
+			)
+			to := []string{savedTicket.User.Email}
+
+			err = utils.SendEmail(to, subject, body, *smtpAuth, "smtp.gmail.com", smtpEmail)
+			if err != nil {
+				log.Printf("Failed to send notification email: %s", err)
+			}
+			
 
 			// Acknowledge the message after successful processing
 			d.Ack(false)
