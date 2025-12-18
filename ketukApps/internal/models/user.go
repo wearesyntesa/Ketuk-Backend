@@ -31,6 +31,7 @@ type CreateUserRequest struct {
 type UpdateUserRequest struct {
 	Name  string `json:"name,omitempty" example:"Jane Doe"`
 	Email string `json:"email,omitempty" example:"jane.doe@example.com"`
+	Role  string `json:"role,omitempty" example:"admin"`
 }
 
 // APIResponse represents a standard API response

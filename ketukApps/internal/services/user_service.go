@@ -80,6 +80,9 @@ func (s *UserService) Update(id uint, req models.UpdateUserRequest) (*models.Use
 	if req.Email != "" {
 		updates["email"] = req.Email
 	}
+	if req.Role != "" {
+		updates["role"] = req.Role
+	}
 
 	if len(updates) > 0 {
 		result := s.db.Model(&user).Updates(updates)
