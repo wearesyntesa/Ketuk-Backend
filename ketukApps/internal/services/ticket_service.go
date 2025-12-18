@@ -3,6 +3,9 @@ package services
 import (
 	"errors"
 	"fmt"
+	"ketukApps/internal/utils"
+	"log"
+	"net/smtp"
 	"time"
 
 	"ketukApps/internal/models"
@@ -13,12 +16,25 @@ import (
 type TicketService struct {
 	db           *gorm.DB
 	auditService *AuditService
+	smtpAuth     *smtp.Auth
+	smtpHost     string
+	smtpEmail    string
 }
 
 func NewTicketService(db *gorm.DB) *TicketService {
 	return &TicketService{
 		db:           db,
 		auditService: NewAuditService(db),
+	}
+}
+
+func NewTicketServiceWithEmail(db *gorm.DB, smtpAuth *smtp.Auth, smtpHost, smtpEmail string) *TicketService {
+	return &TicketService{
+		db:           db,
+		auditService: NewAuditService(db),
+		smtpAuth:     smtpAuth,
+		smtpHost:     smtpHost,
+		smtpEmail:    smtpEmail,
 	}
 }
 
@@ -149,6 +165,11 @@ func (s *TicketService) CreateFromModel(ticket *models.Ticket) (*models.Ticket, 
 
 // UpdateStatus updates the status of a ticket
 func (s *TicketService) UpdateStatus(id uint, status, reason string) (*models.Ticket, error) {
+	return s.UpdateStatusWithAdmin(id, status, reason, nil)
+}
+
+// UpdateStatusWithAdmin updates the status of a ticket and sends email notification
+func (s *TicketService) UpdateStatusWithAdmin(id uint, status, reason string, adminUser *models.User) (*models.Ticket, error) {
 	validStatuses := []string{"pending", "accepted", "rejected"}
 
 	// Validate status
@@ -165,15 +186,16 @@ func (s *TicketService) UpdateStatus(id uint, status, reason string) (*models.Ti
 	}
 
 	var ticket models.Ticket
-	if err := s.db.First(&ticket, id).Error; err != nil {
+	if err := s.db.Preload("User").First(&ticket, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("ticket not found")
 		}
 		return nil, err
 	}
 
-	// Store old ticket state for audit
+	// Store old ticket state for audit and comparison
 	oldTicket := ticket
+	oldStatus := string(ticket.Status)
 
 	updates := map[string]interface{}{
 		"status": status,
@@ -226,7 +248,77 @@ func (s *TicketService) UpdateStatus(id uint, status, reason string) (*models.Ti
 		nil,
 	)
 
+	// Send email notification only if status actually changed
+	if oldStatus != string(ticket.Status) {
+		s.sendStatusChangeEmail(&ticket, oldStatus, adminUser)
+	}
+
 	return &ticket, nil
+}
+
+// sendStatusChangeEmail sends an email notification when ticket status changes
+func (s *TicketService) sendStatusChangeEmail(ticket *models.Ticket, oldStatus string, adminUser *models.User) {
+	if s.smtpAuth == nil || ticket.User.Email == "" {
+		return
+	}
+
+	to := []string{ticket.User.Email}
+	var subject string
+	var body string
+
+	statusAction := "updated"
+	if ticket.Status == "accepted" {
+		statusAction = "approved"
+	} else if ticket.Status == "rejected" {
+		statusAction = "rejected"
+	}
+
+	subject = fmt.Sprintf("Ticket #%d Status %s", ticket.ID, statusAction)
+
+	adminInfo := "the admin team"
+	if adminUser != nil {
+		adminInfo = fmt.Sprintf("%s (%s)", adminUser.Name, adminUser.Email)
+	}
+
+	body = fmt.Sprintf(`Hello %s,
+
+Your ticket status has been %s.
+
+Ticket Details:
+- Ticket ID: #%d
+- Title: %s
+- Description: %s
+- Previous Status: %s
+- New Status: %s
+- Reason: %s
+- Processed by: %s
+
+Thank you for using our service.
+
+Best regards,
+The Support Team`,
+		ticket.User.Name,
+		statusAction,
+		ticket.ID,
+		ticket.Title,
+		ticket.Description,
+		oldStatus,
+		ticket.Status,
+		func() string {
+			if ticket.Reason != "" {
+				return ticket.Reason
+			}
+			return "N/A"
+		}(),
+		adminInfo,
+	)
+
+	err := utils.SendEmail(to, subject, body, *s.smtpAuth, s.smtpHost, s.smtpEmail)
+	if err != nil {
+		log.Printf("Failed to send status change notification email to %s: %s", ticket.User.Email, err)
+	} else {
+		log.Printf("Successfully sent status change notification email to %s for ticket #%d", ticket.User.Email, ticket.ID)
+	}
 }
 
 // Update updates ticket details

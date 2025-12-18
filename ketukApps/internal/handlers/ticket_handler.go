@@ -344,7 +344,15 @@ func (h *TicketHandler) UpdateTicketStatus(c *gin.Context) {
 		return
 	}
 
-	ticket, err := h.ticketService.UpdateStatus(id, req.Status, req.Reason)
+	// Get admin user from context
+	var adminUser *models.User
+	if user, exists := c.Get("user"); exists {
+		if u, ok := user.(models.User); ok {
+			adminUser = &u
+		}
+	}
+
+	ticket, err := h.ticketService.UpdateStatusWithAdmin(id, req.Status, req.Reason, adminUser)
 	if err != nil {
 		status := http.StatusBadRequest
 		if err.Error() == "ticket not found" {

@@ -65,7 +65,7 @@ func main() {
 
 	// Initialize services
 	userService := services.NewUserService(db)
-	ticketService := services.NewTicketService(db)
+	ticketService := services.NewTicketServiceWithEmail(db, &GmailSmtpAuth, cfg.SMTPGmail.Host, cfg.SMTPGmail.Email)
 	scheduleService := services.NewScheduleService(db)
 	itemsService := services.NewItemService(db)
 	unblockingService := services.NewUnblockingService(db)
