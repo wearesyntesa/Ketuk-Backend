@@ -88,7 +88,6 @@ func SchduleWorker(name string, ticketService *services.TicketService, scheduleS
 			if err != nil {
 				log.Printf("Failed to send notification email: %s", err)
 			}
-			
 
 			// Acknowledge the message after successful processing
 			d.Ack(false)
@@ -104,9 +103,8 @@ func ConsumerSchedule(name string) (<-chan amqp.Delivery, error) {
 		false, // exclusive
 		false, // no-wait
 		amqp.Table{
-			"x-max-priority": int32(10),
-			amqp.QueueTypeArg: amqp.QueueTypeClassic,
-			amqp.ConsumerTimeoutArg: 600_000 * 6, // 1 jam 
+			amqp.QueueTypeArg:       amqp.QueueTypeClassic,
+			amqp.ConsumerTimeoutArg: 600_000 * 6, // 1 jam
 		},
 	)
 	if err != nil {
