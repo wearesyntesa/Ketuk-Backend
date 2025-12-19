@@ -103,7 +103,11 @@ func ConsumerSchedule(name string) (<-chan amqp.Delivery, error) {
 		false, // delete when unused
 		false, // exclusive
 		false, // no-wait
-		nil,   // arguments
+		amqp.Table{
+			"x-max-priority": int32(10),
+			amqp.QueueTypeArg: amqp.QueueTypeClassic,
+			amqp.ConsumerTimeoutArg: 600_000 * 6, // 1 jam 
+		},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to declare a queue: %w", err)

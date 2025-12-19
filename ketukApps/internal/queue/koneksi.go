@@ -4,6 +4,7 @@ import (
 	"ketukApps/config"
 	"log"
 	"net/url"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -22,7 +23,13 @@ func NewRabbitMQConnection(cfg *config.Config) (err error) {
 		Host:   cfg.Queue.Host + ":" + cfg.Queue.Port,
 	}
 
-	conn, err := amqp.Dial(url.String())
+	amqpConfig := amqp.Config{
+		Heartbeat: 60 * time.Second,
+		Locale:    "id_ID",
+		
+	}
+
+	conn, err := amqp.DialConfig(url.String(), amqpConfig)
 	if err != nil {
 		log.Fatalf("Failed to connect to RabbitMQ: %s", err)
 	}
