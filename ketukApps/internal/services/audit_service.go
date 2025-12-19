@@ -53,7 +53,7 @@ func (s *AuditService) LogTicketEvent(
 	}
 
 	// Convert changes to JSON
-	if changes != nil && len(changes) > 0 {
+	if len(changes) > 0 {
 		data, err := json.Marshal(changes)
 		if err != nil {
 			return fmt.Errorf("failed to marshal changes: %w", err)
