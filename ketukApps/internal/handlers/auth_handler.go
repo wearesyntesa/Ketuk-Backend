@@ -186,12 +186,22 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
+	// Check if this is the first user (make them admin)
+	var userCount int64
+	h.db.Model(&models.User{}).Count(&userCount)
+
+	// Determine role - first user becomes admin
+	userRole := "user"
+	if userCount == 0 {
+		userRole = "admin"
+	}
+
 	// Create user
 	user := models.User{
 		Email:    req.Email,
 		Name:     req.Name,
 		Password: string(hashedPassword),
-		Role:     "user", // Default role
+		Role:     userRole,
 	}
 
 	if err := h.db.Create(&user).Error; err != nil {
@@ -494,12 +504,22 @@ func (h *AuthHandler) GoogleCallback(c *gin.Context) {
 	result := h.db.Where("email = ?", googleUser.Email).First(&user)
 
 	if result.Error == gorm.ErrRecordNotFound {
+		// Check if this is the first user (make them admin)
+		var userCount int64
+		h.db.Model(&models.User{}).Count(&userCount)
+
+		// Determine role - first user becomes admin
+		userRole := "user"
+		if userCount == 0 {
+			userRole = "admin"
+		}
+
 		// Create new user
 		user = models.User{
 			Email:     googleUser.Email,
 			Name:      googleUser.Name,
 			GoogleSub: googleUser.ID,
-			Role:      "user", // Default role
+			Role:      userRole,
 		}
 
 		if err := h.db.Create(&user).Error; err != nil {
