@@ -82,7 +82,7 @@ type ScheduleConfig struct {
 type SMTPGmailConfig struct {
 	Email    string
 	Password string
-	Host	 string
+	Host     string
 }
 
 func Load() *Config {
@@ -107,7 +107,7 @@ func Load() *Config {
 		Google: GoogleOAuthConfig{
 			ClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
 			ClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
-			RedirectURI:  getEnv("GOOGLE_REDIRECT_URI", "http://localhost:8081/api/auth/v1/google/callback"),
+			RedirectURI:  getEnv("GOOGLE_REDIRECT_URI", "http://localhost:3000/auth/google/callback"),
 		},
 		Queue: QueueConfig{
 			Host:              getEnv("QUEUE_HOST", "localhost"),
