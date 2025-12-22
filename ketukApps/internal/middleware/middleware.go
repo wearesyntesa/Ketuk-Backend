@@ -237,14 +237,14 @@ func IsOwnerOrAdmin(userIDParam string) gin.HandlerFunc {
 	}
 }
 
-// Check State of unblock In current system
+// CheckUnblockState checks if the booking window is currently open
 func CheckUnblockState() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !scheduler.IsUnblockEnabled() {
 			c.JSON(http.StatusForbidden, models.APIResponse{
 				Success: false,
-				Message: "This feature is currently disabled",
-				Error:   "Please contact the administrator",
+				Message: "Reservations are currently closed",
+				Error:   "The booking window is not open. Please check back during the scheduled booking period or contact an administrator.",
 			})
 			c.Abort()
 			return
@@ -254,13 +254,14 @@ func CheckUnblockState() gin.HandlerFunc {
 	}
 }
 
+// CheckUnblockStateReverseTechnique checks if the booking window is closed (for admin operations that should only work outside booking windows)
 func CheckUnblockStateReverseTechnique() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if scheduler.IsUnblockEnabled() {
 			c.JSON(http.StatusForbidden, models.APIResponse{
 				Success: false,
-				Message: "This feature is currently enabled, cant",
-				Error:   "Please contact the administrator",
+				Message: "Action not available during booking period",
+				Error:   "This action cannot be performed while the booking window is active. Please wait until the booking period ends.",
 			})
 			c.Abort()
 			return
