@@ -250,6 +250,8 @@ func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHa
 				// Both users and admins can view audit logs
 				audit.GET("/tickets/:ticket_id/logs", middleware.RequireRole("admin", "user"), auditHandler.GetTicketEventLogs)
 				audit.GET("/users/:user_id/logs", middleware.RequireRole("admin"), auditHandler.GetEventLogsByUser)
+				// Admin only can view all audit logs
+				audit.GET("/logs", middleware.RequireRole("admin"), auditHandler.GetAllEventLogs)
 			}
 		}
 	}

@@ -97,3 +97,29 @@ func (h *AuditHandler) GetEventLogsByUser(c *gin.Context) {
 		Data:    logs,
 	})
 }
+
+// @Summary Get all event logs
+// @Description Get all event logs in the system
+// @Tags audit
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} models.APIResponse{data=[]models.TicketEventLog}
+// @Failure 500 {object} models.APIResponse
+// @Router /api/audit/logs [get]
+func (h *AuditHandler) GetAllEventLogs(c *gin.Context) {
+	logs, err := h.auditService.GetAllEventLogs()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Message: "Failed to retrieve event logs",
+			Error:   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.APIResponse{
+		Success: true,
+		Message: "Event logs retrieved successfully",
+		Data:    logs,
+	})
+}
