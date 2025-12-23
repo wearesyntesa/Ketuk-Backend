@@ -118,7 +118,52 @@ func (s *TicketService) Create(userID uint, title, description string) (*models.
 
 // CreateFromRequest creates a new ticket from CreateTicketRequest
 func (s *TicketService) CreateFromRequest(req models.CreateTicketRequest) (*models.Ticket, error) {
-	return s.Create(req.UserID, req.Title, req.Description)
+	if req.Title == "" {
+		return nil, errors.New("title is required")
+	}
+	if req.StartDate.IsZero() {
+		return nil, errors.New("start date is required")
+	}
+	if req.EndDate.IsZero() {
+		return nil, errors.New("end date is required")
+	}
+	if req.Category == "" {
+		return nil, errors.New("category is required")
+	}
+
+	ticket := models.Ticket{
+		UserID:      req.UserID,
+		Title:       req.Title,
+		Description: req.Description,
+		Category:    req.Category,
+		StartDate:   req.StartDate,
+		EndDate:     req.EndDate,
+		Status:      "pending",
+	}
+
+	result := s.db.Create(&ticket)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	// Reload with user data
+	s.db.Preload("User").First(&ticket, ticket.ID)
+
+	// Log audit trail
+	userIDInt := int(req.UserID)
+	s.auditService.LogTicketEvent(
+		int(ticket.ID),
+		&userIDInt,
+		models.EventCreated,
+		nil,
+		ticket,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+
+	return &ticket, nil
 }
 
 // CreateFromModel creates a new ticket from a models.Ticket (used for queue processing)

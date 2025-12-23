@@ -169,6 +169,7 @@ func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHa
 				// All authenticated users can view and create tickets
 				tickets.GET("/v1", middleware.RequireRole("admin", "user"), middleware.CheckUnblockState(), ticketHandler.GetAllTickets)
 				tickets.GET("/v1/:id", middleware.RequireRole("admin", "user"), middleware.CheckUnblockState(), ticketHandler.GetTicketByID)
+				tickets.GET("/v1/user/:user_id", middleware.RequireRole("admin", "user"), middleware.CheckUnblockState(), ticketHandler.GetTicketsByUserID)
 				tickets.POST("/v1", middleware.RequireRole("admin", "user"), middleware.CheckUnblockState(), ticketHandler.CreateTicket)
 
 				// Only admin can update, delete, and change status
