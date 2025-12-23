@@ -71,6 +71,7 @@ func main() {
 	unblockingService := services.NewUnblockingService(db)
 	googleOAuthService := services.NewGoogleOAuthService(cfg)
 	auditService := services.NewAuditService(db)
+	formLinkService := services.NewFormLinkService(db)
 
 	// Start the worker with ticket service and schedule service
 	go func() {
@@ -87,9 +88,10 @@ func main() {
 	unblockingHandler := handlers.NewUnblockingHandler(unblockingService)
 	scheduleHandler := handlers.NewScheduleHandler(scheduleService)
 	auditHandler := handlers.NewAuditHandler(auditService)
+	formLinkHandler := handlers.NewFormLinkHandler(formLinkService)
 
 	// Setup Gin router
-	router := setupRouter(authHandler, userHandler, tickets, items, unblockingHandler, scheduleHandler, auditHandler)
+	router := setupRouter(authHandler, userHandler, tickets, items, unblockingHandler, scheduleHandler, auditHandler, formLinkHandler)
 
 	// Setup Scheduler
 
@@ -114,7 +116,7 @@ func main() {
 	}
 }
 
-func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler, unblockingHandler *handlers.UnblockingHandler, scheduleHandler *handlers.ScheduleHandler, auditHandler *handlers.AuditHandler) *gin.Engine {
+func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHandler, ticketHandler *handlers.TicketHandler, itemHandler *handlers.ItemHandler, unblockingHandler *handlers.UnblockingHandler, scheduleHandler *handlers.ScheduleHandler, auditHandler *handlers.AuditHandler, formLinkHandler *handlers.FormLinkHandler) *gin.Engine {
 	// Set Gin mode based on environment
 	gin.SetMode(gin.DebugMode) // Change to gin.DebugMode for development
 
@@ -254,6 +256,26 @@ func setupRouter(authHandler *handlers.AuthHandler, userHandler *handlers.UserHa
 				// Admin only can view all audit logs
 				audit.GET("/logs", middleware.RequireRole("admin"), auditHandler.GetAllEventLogs)
 			}
+
+			// Form Links endpoints (admin only)
+			formLinks := protected.Group("/form-links")
+			{
+				formLinks.GET("/v1", middleware.RequireRole("admin"), formLinkHandler.GetAllFormLinks)
+				formLinks.GET("/v1/:id", middleware.RequireRole("admin"), formLinkHandler.GetFormLinkByID)
+				formLinks.POST("/v1", middleware.RequireRole("admin"), formLinkHandler.CreateFormLink)
+				formLinks.PUT("/v1/:id", middleware.RequireRole("admin"), formLinkHandler.UpdateFormLink)
+				formLinks.DELETE("/v1/:id", middleware.RequireRole("admin"), formLinkHandler.DeleteFormLink)
+				formLinks.PATCH("/v1/:id/deactivate", middleware.RequireRole("admin"), formLinkHandler.DeactivateFormLink)
+				formLinks.POST("/v1/:id/clone", middleware.RequireRole("admin"), formLinkHandler.CloneFormLink)
+				formLinks.GET("/v1/:id/submissions", middleware.RequireRole("admin"), formLinkHandler.GetSubmissions)
+			}
+		}
+
+		// Public endpoints (no authentication required)
+		public := api.Group("/public")
+		{
+			public.GET("/form/:code", formLinkHandler.GetPublicForm)
+			public.POST("/form/:code/submit", formLinkHandler.SubmitPublicForm)
 		}
 	}
 

@@ -33,4 +33,8 @@ psql -h postgres -U user -d mydb < /migrations/000007_adding_reason_in_ticket.up
 
 echo "Running migration 000008_create_ticket_event_log.up.sql..."
 psql -h postgres -U user -d mydb < /migrations/000008_create_ticket_event_log.up.sql
+
+echo "Running migration 000009_create_form_links.up.sql..."
+psql -h postgres -U user -d mydb < /migrations/000009_create_form_links.up.sql
+
 echo "All migrations completed successfully!"
