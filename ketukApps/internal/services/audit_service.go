@@ -102,6 +102,16 @@ func (s *AuditService) GetEventLogsByUser(userID int) ([]models.TicketEventLog, 
 	return logs, err
 }
 
+// GetAllEventLogs retrieves all event logs in the system
+func (s *AuditService) GetAllEventLogs() ([]models.TicketEventLog, error) {
+	var logs []models.TicketEventLog
+	err := s.db.Order("created_at DESC").
+		Preload("Ticket").
+		Preload("User").
+		Find(&logs).Error
+	return logs, err
+}
+
 // CompareTickets compares two ticket objects and returns the changes
 func (s *AuditService) CompareTickets(oldTicket, newTicket *models.Ticket) map[string]interface{} {
 	changes := make(map[string]interface{})

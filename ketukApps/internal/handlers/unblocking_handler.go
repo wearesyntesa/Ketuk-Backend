@@ -35,7 +35,11 @@ func NewUnblockingHandler(unblockingService *services.UnblockingService) *Unbloc
 func (h *UnblockingHandler) CreateUnblocking(c *gin.Context) {
 	var req models.CreateUnblockingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, models.APIResponse{
+			Success: false,
+			Message: "Invalid request data",
+			Error:   "Please check that all required fields are filled in correctly.",
+		})
 		return
 	}
 
@@ -49,13 +53,17 @@ func (h *UnblockingHandler) CreateUnblocking(c *gin.Context) {
 
 	unblocking, err := h.unblockingService.Create(&unblockingData)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Message: "Unable to create booking window",
+			Error:   "Something went wrong while creating the booking window. Please try again.",
+		})
 		return
 	}
 
 	c.JSON(http.StatusCreated, models.UnblockingResponse{
 		Success:    true,
-		Message:    "Unblocking operation completed successfully",
+		Message:    "Booking window created successfully",
 		Unblocking: *unblocking,
 	})
 }
@@ -76,19 +84,27 @@ func (h *UnblockingHandler) GetUnblockingByID(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid unblocking ID"})
+		c.JSON(http.StatusBadRequest, models.APIResponse{
+			Success: false,
+			Message: "Invalid booking window ID",
+			Error:   "The booking window ID must be a valid number.",
+		})
 		return
 	}
 
 	unblocking, err := h.unblockingService.GetByID(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Message: "Unable to find booking window",
+			Error:   "The requested booking window could not be found or an error occurred.",
+		})
 		return
 	}
 
 	c.JSON(http.StatusOK, models.UnblockingResponse{
 		Success:    true,
-		Message:    "Unblocking operation completed successfully",
+		Message:    "Booking window retrieved successfully",
 		Unblocking: *unblocking,
 	})
 }
@@ -108,19 +124,27 @@ func (h *UnblockingHandler) GetUnblockingsByUserID(c *gin.Context) {
 	userIDParam := c.Param("user_id")
 	userID, err := strconv.Atoi(userIDParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user ID"})
+		c.JSON(http.StatusBadRequest, models.APIResponse{
+			Success: false,
+			Message: "Invalid user ID",
+			Error:   "The user ID must be a valid number.",
+		})
 		return
 	}
 
 	unblockings, err := h.unblockingService.GetByUserID(userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Message: "Unable to load booking windows",
+			Error:   "Something went wrong while fetching booking windows. Please try again.",
+		})
 		return
 	}
 
 	c.JSON(http.StatusOK, models.UnblockingsResponse{
 		Success:     true,
-		Message:     "Unblocking operation completed successfully",
+		Message:     "Booking windows retrieved successfully",
 		Unblockings: unblockings,
 	})
 }
@@ -137,13 +161,17 @@ func (h *UnblockingHandler) GetUnblockingsByUserID(c *gin.Context) {
 func (h *UnblockingHandler) GetAllUnblockings(c *gin.Context) {
 	unblockings, err := h.unblockingService.GetAll()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Message: "Unable to load booking windows",
+			Error:   "Something went wrong while fetching booking windows. Please try again.",
+		})
 		return
 	}
 
 	c.JSON(http.StatusOK, models.UnblockingsResponse{
 		Success:     true,
-		Message:     "Unblocking operation completed successfully",
+		Message:     "Booking windows retrieved successfully",
 		Unblockings: unblockings,
 	})
 }
