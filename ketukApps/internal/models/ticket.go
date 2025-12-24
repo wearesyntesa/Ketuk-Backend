@@ -16,6 +16,7 @@ type Ticket struct {
 	UpdatedAt   time.Time    `json:"updatedAt" gorm:"column:updated_at;autoUpdateTime" example:"2023-01-01T00:00:00Z"`
 	ApprovedAt  *time.Time   `json:"approvedAt,omitempty" gorm:"column:approved_at" example:"2023-01-02T00:00:00Z"`
 	Reason      string       `json:"reason" gorm:"column:reason;type:text;not null;default:'No reason provided'" example:"No reason provided"`
+	Lecturer    string       `json:"lecturer,omitempty" gorm:"column:lecturer;size:255" example:"Dr. John Doe"`
 }
 
 // Category defines the type of request
@@ -43,6 +44,7 @@ type CreateTicketRequest struct {
 	UserID      uint   `json:"userId" binding:"required" example:"1"`
 	Title       string `json:"title" binding:"required" example:"Room Booking Request"`
 	Description string `json:"description" binding:"required" example:"Need to book conference room for meeting"`
+	Lecturer    string `json:"lecturer,omitempty" example:"Dr. John Doe"`
 }
 
 // UpdateTicketRequest is the request body for updating a ticket
@@ -50,6 +52,7 @@ type CreateTicketRequest struct {
 type UpdateTicketRequest struct {
 	Title       string `json:"title,omitempty" example:"Updated Room Booking Request"`
 	Description string `json:"description,omitempty" example:"Updated description for the booking"`
+	Lecturer    string `json:"lecturer,omitempty" example:"Dr. John Doe"`
 }
 
 // TicketResponse represents a ticket response
